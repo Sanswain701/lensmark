@@ -81,7 +81,7 @@ function Home() {
           ) : !photos || photos.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="columns-1 gap-6 sm:columns-2 lg:columns-3 [column-fill:_balance]">
+            <div className="columns-1 gap-4 sm:columns-2 sm:gap-6 lg:columns-3 [column-fill:_balance]">
               {photos.map((p) => (
                 <PhotoCard key={p.id} photo={p} />
               ))}
@@ -98,14 +98,16 @@ function Home() {
 
 function PhotoCard({ photo }: { photo: Photo }) {
   return (
-    <div className="mb-6 break-inside-avoid">
+    <div className="mb-4 break-inside-avoid sm:mb-6">
       <Link to="/p/$id" params={{ id: photo.id }} className="group block overflow-hidden rounded-lg border border-border bg-card">
-        <div className="overflow-hidden bg-muted">
+        <div className="relative overflow-hidden bg-muted">
           <img
             src={photo.image_url}
             alt={photo.caption ?? "Untitled"}
             loading="lazy"
-            className="w-full transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+            decoding="async"
+            onLoad={(e) => e.currentTarget.classList.remove("opacity-0", "blur-md")}
+            className="w-full opacity-0 blur-md transition-[opacity,filter,transform] duration-700 ease-out group-hover:scale-[1.02]"
           />
         </div>
         <div className="flex items-center justify-between px-4 py-3">
