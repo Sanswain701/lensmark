@@ -22,18 +22,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const compute = () => (theme === "system" ? "light" : theme);
-    const next = compute();
+    const next = theme === "system" ? "light" : theme;
     setResolved(next);
     applyTheme(next);
-    const onChange = () => {
-      if (theme !== "system") return;
-      const n = mql.matches ? "dark" : "light";
-      setResolved(n);
-      applyTheme(n);
-    };
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
   }, [theme]);
 
   const setTheme = (t: Theme) => {
