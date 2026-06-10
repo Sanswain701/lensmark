@@ -10,7 +10,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/p/$id")({
-  head: ({ params }) => ({ meta: [{ title: `Photograph · LensMark` }, { property: "og:image", content: "" }] }),
+  head: () => ({ meta: [{ title: `Photograph · LensMark` }] }),
   component: PhotoPage,
 });
 
