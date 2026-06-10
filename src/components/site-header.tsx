@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Camera, Compass, Plus, LogOut, User as UserIcon, Sun, Moon, Monitor } from "lucide-react";
+import { Camera, Compass, Plus, LogOut, User as UserIcon, Sun, Moon } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -69,9 +69,6 @@ export function SiteHeader() {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("dark")}>
                 <Moon className="mr-2 h-4 w-4" /> Dark {theme === "dark" && <span className="ml-auto text-xs text-muted-foreground">·</span>}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                <Monitor className="mr-2 h-4 w-4" /> System {theme === "system" && <span className="ml-auto text-xs text-muted-foreground">·</span>}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
