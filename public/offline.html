@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Offline — LensMark</title>
+    <link rel="icon" href="/favicon-32.png" />
+    <style>
+      :root { color-scheme: light; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; height: 100%; }
+      body {
+        background: #fbfaf7;
+        color: #1c1c1a;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Inter", sans-serif;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+      .card { max-width: 32rem; text-align: center; }
+      .mark { width: 56px; height: 56px; margin: 0 auto 1.5rem; opacity: 0.8; }
+      h1 {
+        font-family: "Fraunces", ui-serif, Georgia, serif;
+        font-weight: 400;
+        font-size: clamp(2rem, 6vw, 3rem);
+        letter-spacing: -0.02em;
+        margin: 0 0 0.75rem;
+      }
+      .italic { font-style: italic; color: #6b6a64; }
+      p { color: #6b6a64; line-height: 1.6; margin: 0 0 2rem; font-size: 0.95rem; }
+      button {
+        appearance: none;
+        border: 1px solid #1c1c1a;
+        background: #1c1c1a;
+        color: #fbfaf7;
+        padding: 0.65rem 1.25rem;
+        border-radius: 6px;
+        font: inherit;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+      }
+      button:hover { opacity: 0.85; }
+      .footnote {
+        margin-top: 3rem;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #9b9a93;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <img class="mark" src="/icon-192.png" alt="LensMark" />
+      <h1>You're <span class="italic">offline.</span></h1>
+      <p>
+        LensMark can't reach the network right now. Recently viewed photographs
+        remain available — try again when you're back online.
+      </p>
+      <button onclick="location.reload()">Try again</button>
+      <div class="footnote">LensMark</div>
+    </main>
+  </body>
+</html>

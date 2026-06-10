@@ -150,6 +150,10 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  html, body {
+    overscroll-behavior-y: none;
+  }
+
   .font-display {
     font-family: var(--font-display);
     font-feature-settings: "ss01";
