@@ -156,7 +156,7 @@ function PhotoPage() {
             <div>
               <h3 className="mb-3 inline-flex items-center gap-2 text-sm font-medium"><MessageCircle className="h-4 w-4" strokeWidth={1.5} /> Conversation</h3>
               <form onSubmit={postComment} className="space-y-2">
-                <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={1000} placeholder={me ? "Add a thoughtful note…" : "Sign in to comment"} disabled={!me} />
+                <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={1000} placeholder={me ? "Share a thoughtful observation…" : "Sign in to share an observation"} disabled={!me} />
                 <Button type="submit" size="sm" disabled={!me || posting || !comment.trim()}>Post</Button>
               </form>
               <ul className="mt-5 space-y-4">
