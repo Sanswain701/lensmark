@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Camera, Compass, Plus, LogOut, User as UserIcon } from "lucide-react";
+import { Camera, Compass, Plus, LogOut, User as UserIcon, Sun, Moon, Monitor } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/components/theme-provider";
 
 export function SiteHeader() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState<string | null>(null);
+  const { theme, resolvedTheme, setTheme } = useTheme();
 
   useEffect(() => {
     if (!user) {
@@ -52,6 +54,27 @@ export function SiteHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                aria-label="Theme"
+                className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              >
+                {resolvedTheme === "dark" ? <Moon className="h-4 w-4" strokeWidth={1.5} /> : <Sun className="h-4 w-4" strokeWidth={1.5} />}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-36">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                <Sun className="mr-2 h-4 w-4" /> Light {theme === "light" && <span className="ml-auto text-xs text-muted-foreground">·</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <Moon className="mr-2 h-4 w-4" /> Dark {theme === "dark" && <span className="ml-auto text-xs text-muted-foreground">·</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                <Monitor className="mr-2 h-4 w-4" /> System {theme === "system" && <span className="ml-auto text-xs text-muted-foreground">·</span>}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {user ? (
             <>
               <Button asChild size="sm" variant="outline" className="gap-1.5">
