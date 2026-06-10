@@ -90,7 +90,15 @@ function Home() {
         </section>
       </main>
       <footer className="border-t border-border py-10 text-center text-xs text-muted-foreground">
-        LensMark · Made for image makers
+        LensMark · Made by{" "}
+        <a
+          href="https://instagram.com/sanfrfr._"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-foreground"
+        >
+          @sanfrfr._
+        </a>
       </footer>
     </div>
   );
