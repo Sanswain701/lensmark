@@ -14,8 +14,6 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeProvider } from "@/components/theme-provider";
-import { InstallPrompt } from "@/components/install-prompt";
-import { registerServiceWorker } from "@/lib/register-sw";
 
 function NotFoundComponent() {
   return (
@@ -81,29 +79,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#ffffff" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-      { name: "apple-mobile-web-app-title", content: "LensMark" },
-      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "LensMark — A quieter home for photography" },
       { name: "description", content: "LensMark is a trust-first photography community built around identity, discovery, and collections — not vanity metrics." },
       { name: "author", content: "LensMark" },
-      { property: "og:title", content: "LensMark" },
-      { property: "og:description", content: "A trust-first photography community." },
+      { property: "og:title", content: "LensMark — A quieter home for photography" },
+      { property: "og:description", content: "LensMark is a trust-first photography community built around identity, discovery, and collections — not vanity metrics." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "LensMark — A quieter home for photography" },
+      { name: "twitter:description", content: "LensMark is a trust-first photography community built around identity, discovery, and collections — not vanity metrics." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/88fd429e-4fa9-46a1-be25-201010488106" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/88fd429e-4fa9-46a1-be25-201010488106" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" },
-      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16.png" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -141,7 +134,6 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
-    registerServiceWorker();
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
@@ -155,7 +147,6 @@ function RootComponent() {
       <ThemeProvider>
         <Outlet />
         <Toaster />
-        <InstallPrompt />
       </ThemeProvider>
     </QueryClientProvider>
   );
