@@ -1,32 +1,62 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { X, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
+import { X, ZoomIn, ZoomOut, Maximize2, ChevronLeft, ChevronRight } from "lucide-react";
 
 type Props = {
   src: string;
   alt?: string;
   open: boolean;
   onClose: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
 };
 
 /**
  * Fullscreen immersive viewer: pinch-to-zoom (touch), wheel zoom, double-tap,
  * pan, ESC to close. Preserves original aspect ratio.
  */
-export function PhotoViewer({ src, alt, open, onClose }: Props) {
+export function PhotoViewer({ src, alt, open, onClose, onPrev, onNext }: Props) {
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      else if (e.key === "ArrowLeft" && onPrev) onPrev();
+      else if (e.key === "ArrowRight" && onNext) onNext();
+    };
     window.addEventListener("keydown", onKey);
     return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", onKey); };
-  }, [open, onClose]);
+  }, [open, onClose, onPrev, onNext]);
 
   if (!open) return null;
 
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) { touchStartX.current = null; return; }
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null || touchStartY.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null; touchStartY.current = null;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx > 0 && onPrev) onPrev();
+    else if (dx < 0 && onNext) onNext();
+  };
+
   return (
-    <div className="fixed inset-0 z-[100] bg-black/97 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-[100] bg-black/97 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
       <TransformWrapper
         initialScale={1}
         minScale={1}
@@ -39,6 +69,24 @@ export function PhotoViewer({ src, alt, open, onClose }: Props) {
       >
         {({ zoomIn, zoomOut, resetTransform }) => (
           <>
+            {onPrev ? (
+              <button
+                onClick={onPrev}
+                aria-label="Previous"
+                className="absolute left-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-white/10 bg-black/40 p-2 text-white/80 backdrop-blur hover:bg-white/10 md:block"
+              >
+                <ChevronLeft className="h-5 w-5" strokeWidth={1.5} />
+              </button>
+            ) : null}
+            {onNext ? (
+              <button
+                onClick={onNext}
+                aria-label="Next"
+                className="absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-white/10 bg-black/40 p-2 text-white/80 backdrop-blur hover:bg-white/10 md:block"
+              >
+                <ChevronRight className="h-5 w-5" strokeWidth={1.5} />
+              </button>
+            ) : null}
             <div className="absolute right-4 top-4 z-10 flex items-center gap-1 rounded-full border border-white/10 bg-black/40 p-1 backdrop-blur">
               <button onClick={() => zoomOut()} aria-label="Zoom out" className="grid h-9 w-9 place-items-center rounded-full text-white/80 hover:bg-white/10">
                 <ZoomOut className="h-4 w-4" strokeWidth={1.5} />
