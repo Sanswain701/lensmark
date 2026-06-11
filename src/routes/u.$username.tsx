@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { SocialIcons } from "@/components/social-icons";
-import { Shield, Calendar, Image as ImageIcon, Layers, MapPin } from "lucide-react";
+import { Shield, Calendar, Image as ImageIcon, Layers } from "lucide-react";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/u/$username")({
