@@ -83,6 +83,7 @@ export type Database = {
       collections: {
         Row: {
           cover_photo_id: string | null
+          cover_url: string | null
           created_at: string
           description: string | null
           id: string
@@ -92,6 +93,7 @@ export type Database = {
         }
         Insert: {
           cover_photo_id?: string | null
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -101,6 +103,7 @@ export type Database = {
         }
         Update: {
           cover_photo_id?: string | null
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -212,34 +215,57 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          cover_url: string | null
           created_at: string
           display_name: string | null
+          featured_collection_id: string | null
           id: string
+          instagram: string | null
           trust_score: number
+          twitter: string | null
           updated_at: string
           username: string
+          website: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          cover_url?: string | null
           created_at?: string
           display_name?: string | null
+          featured_collection_id?: string | null
           id: string
+          instagram?: string | null
           trust_score?: number
+          twitter?: string | null
           updated_at?: string
           username: string
+          website?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          cover_url?: string | null
           created_at?: string
           display_name?: string | null
+          featured_collection_id?: string | null
           id?: string
+          instagram?: string | null
           trust_score?: number
+          twitter?: string | null
           updated_at?: string
           username?: string
+          website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_featured_collection_id_fkey"
+            columns: ["featured_collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
