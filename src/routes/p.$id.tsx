@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, Trash2, MessageCircle } from "lucide-react";
+import { Heart, Trash2, MessageCircle, FolderPlus } from "lucide-react";
+import { AddToCollectionDialog } from "@/components/add-to-collection-dialog";
 import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 
@@ -21,6 +22,7 @@ function PhotoPage() {
   const [me, setMe] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [posting, setPosting] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
@@ -147,9 +149,14 @@ function PhotoPage() {
                 {photo.appreciations_count} {photo.appreciations_count === 1 ? "appreciation" : "appreciations"}
               </Button>
               {me === photo.owner_id && (
-                <Button onClick={deletePhoto} variant="outline" size="icon" aria-label="Delete">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <>
+                  <Button onClick={() => setAddOpen(true)} variant="outline" size="icon" aria-label="Add to collection">
+                    <FolderPlus className="h-4 w-4" />
+                  </Button>
+                  <Button onClick={deletePhoto} variant="outline" size="icon" aria-label="Delete">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
               )}
             </div>
 
@@ -173,6 +180,9 @@ function PhotoPage() {
           </aside>
         </div>
       </main>
+      {me && me === photo.owner_id && (
+        <AddToCollectionDialog open={addOpen} onClose={() => setAddOpen(false)} photoId={photo.id} ownerId={me} />
+      )}
     </div>
   );
 }
