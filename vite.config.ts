@@ -13,6 +13,8 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Build target for self-hosted deploys. Vercel auto-detects `.output/`.
+  nitro: { preset: "vercel" },
   vite: {
     plugins: [
       VitePWA({
