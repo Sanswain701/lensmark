@@ -104,9 +104,14 @@ function UploadPage() {
           </div>
 
           <div className="flex gap-3">
-            <Button type="submit" disabled={busy || !file} className="flex-1">
-              <Camera className="mr-2 h-4 w-4" /> {busy ? "Uploading…" : "Place image"}
-            </Button>
+            <Button
+  type="submit"
+  disabled={busy || !file}
+  className="flex-1 pointer-events-none"
+>
+  <Camera className="mr-2 h-4 w-4" />
+  {busy ? "Uploading... Please wait" : "Place image"}
+</Button>
             <Button type="button" variant="outline" onClick={() => navigate({ to: "/" })}>Cancel</Button>
           </div>
         </form>
