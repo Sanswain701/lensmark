@@ -107,9 +107,9 @@ function ProfilePage() {
 
         <div className="mx-auto max-w-5xl px-5">
           {/* Identity row */}
-          <section className="-mt-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <section className="relative z-10 -mt-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-background bg-secondary">
+              <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-background bg-secondary">
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
