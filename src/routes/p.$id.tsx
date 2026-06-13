@@ -122,26 +122,26 @@ function PhotoPage() {
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-5 py-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="rounded-xl bg-black/95">
-            <img src={photo.image_url} alt={photo.caption ?? ""} className="mx-auto max-h-[80vh] w-auto rounded-xl object-contain" />
+          <div className="rounded-2xl bg-black shadow-[var(--shadow-elegant)] ring-1 ring-foreground/10">
+            <img src={photo.image_url} alt={photo.caption ?? ""} className="mx-auto max-h-[82vh] w-auto rounded-2xl object-contain" />
           </div>
           <aside className="space-y-6">
             <div>
               <Link to="/u/$username" params={{ username: photo.profiles?.username ?? "" }} className="inline-flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-sm font-medium">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-sm font-medium ring-1 ring-foreground/10">
                   {(photo.profiles?.username ?? "?").slice(0, 1).toUpperCase()}
                 </div>
                 <div>
                   <p className="text-sm font-medium">{photo.profiles?.display_name ?? photo.profiles?.username}</p>
-                  <p className="text-xs text-muted-foreground">@{photo.profiles?.username}</p>
+                  <p className="meta text-xs text-muted-foreground">@{photo.profiles?.username}</p>
                 </div>
               </Link>
             </div>
-            {photo.caption && <p className="text-sm leading-relaxed">{photo.caption}</p>}
-            <dl className="grid grid-cols-3 gap-3 border-y border-border py-4 text-center">
-              <div><dt className="text-[10px] uppercase tracking-widest text-muted-foreground">Date</dt><dd className="font-display text-sm">{format(dt, "MMM d")}</dd></div>
-              <div><dt className="text-[10px] uppercase tracking-widest text-muted-foreground">Time</dt><dd className="font-display text-sm">{format(dt, "HH:mm")}</dd></div>
-              <div><dt className="text-[10px] uppercase tracking-widest text-muted-foreground">Year</dt><dd className="font-display text-sm">{format(dt, "yyyy")}</dd></div>
+            {photo.caption && <p className="text-[15px] leading-[1.75]">{photo.caption}</p>}
+            <dl className="grid grid-cols-3 gap-3 border-y border-border/70 py-5 text-center">
+              <div><dt className="eyebrow">Date</dt><dd className="font-display mt-1 text-base">{format(dt, "MMM d")}</dd></div>
+              <div><dt className="eyebrow">Time</dt><dd className="font-display mt-1 text-base meta">{format(dt, "HH:mm")}</dd></div>
+              <div><dt className="eyebrow">Year</dt><dd className="font-display mt-1 text-base meta">{format(dt, "yyyy")}</dd></div>
             </dl>
             <div className="flex items-center gap-2">
               <Button onClick={toggleAppreciate} variant={appreciatedQ.data ? "default" : "outline"} className="flex-1 gap-2">

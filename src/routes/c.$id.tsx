@@ -129,19 +129,20 @@ function CollectionPage() {
     <div className="min-h-screen">
       <SiteHeader />
       {c.cover_url && (
-        <div className="relative h-52 w-full overflow-hidden bg-muted sm:h-72">
+        <div className="relative h-52 w-full overflow-hidden bg-[image:var(--gradient-surface)] sm:h-72">
           <img src={c.cover_url} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background via-background/70 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-px hairline-gold" />
         </div>
       )}
       <main className="mx-auto max-w-5xl px-5 py-12">
         <header className="flex items-end justify-between gap-6">
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Collection</p>
-            <h1 className="font-display mt-2 text-5xl tracking-tight">{c.name}</h1>
-            {c.description && <p className="mt-3 max-w-xl text-sm text-muted-foreground">{c.description}</p>}
+            <p className="eyebrow text-gold">Collection</p>
+            <h1 className="font-display mt-3 text-5xl tracking-tight md:text-6xl">{c.name}</h1>
+            {c.description && <p className="mt-4 max-w-xl text-[15px] leading-[1.7] text-muted-foreground">{c.description}</p>}
             <Link to="/u/$username" params={{ username: c.profiles?.username ?? "" }} className="mt-3 inline-block text-sm">
-              by <span className="underline-offset-4 hover:underline">@{c.profiles?.username}</span>
+              by <span className="meta underline-offset-4 hover:underline decoration-[var(--gold)]/60">@{c.profiles?.username}</span>
             </Link>
           </div>
           {isOwner && (

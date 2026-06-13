@@ -96,20 +96,21 @@ function ProfilePage() {
       <SiteHeader />
       <main className="pb-16">
         {/* Cover band */}
-        <div className="relative h-52 w-full overflow-hidden bg-muted sm:h-72">
+        <div className="relative h-52 w-full overflow-hidden bg-[image:var(--gradient-surface)] sm:h-72">
           {profile.cover_url ? (
             <img src={profile.cover_url} alt="" className="h-full w-full object-cover" />
           ) : (
             <div className="h-full w-full bg-gradient-to-b from-muted to-background" />
           )}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background via-background/70 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-px hairline-gold" />
         </div>
 
         <div className="mx-auto max-w-5xl px-5">
           {/* Identity row */}
           <section className="relative z-10 -mt-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-background bg-secondary">
+              <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-background bg-secondary shadow-[var(--shadow-elegant)] ring-1 ring-foreground/10">
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
@@ -118,12 +119,12 @@ function ProfilePage() {
                   </div>
                 )}
               </div>
-              <h1 className="font-display mt-4 text-4xl tracking-tight">{profile.display_name ?? profile.username}</h1>
+              <h1 className="font-display mt-5 text-5xl tracking-tight">{profile.display_name ?? profile.username}</h1>
               <div className="mt-1 flex items-center gap-3">
-                <p className="text-sm text-muted-foreground">@{profile.username}</p>
+                <p className="meta text-sm text-muted-foreground">@{profile.username}</p>
                 <SocialIcons instagram={profile.instagram} twitter={profile.twitter} website={profile.website} />
               </div>
-              {profile.bio && <p className="mt-4 max-w-xl whitespace-pre-line text-sm leading-relaxed text-foreground/90">{profile.bio}</p>}
+              {profile.bio && <p className="mt-5 max-w-xl whitespace-pre-line text-[15px] leading-[1.7] text-foreground/90">{profile.bio}</p>}
             </div>
             <dl className="grid grid-cols-3 gap-3 text-sm md:max-w-sm">
               <Stat icon={<Shield className="h-4 w-4" strokeWidth={1.5} />} label="Trust" value={String(profile.trust_score)} />
@@ -135,19 +136,19 @@ function ProfilePage() {
           {/* Featured collection band */}
           {featured && (
             <section className="mt-12">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Featured collection</p>
-              <Link to="/c/$id" params={{ id: featured.id }} className="group mt-3 grid gap-5 overflow-hidden rounded-xl border border-border bg-card md:grid-cols-[2fr_1fr]">
-                <div className="aspect-[16/9] overflow-hidden bg-muted md:aspect-auto md:h-full">
+              <p className="eyebrow">Featured collection</p>
+              <Link to="/c/$id" params={{ id: featured.id }} className="group mt-4 grid gap-5 overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/[0.06] shadow-[var(--shadow-elegant)] transition-shadow duration-500 ease-[var(--ease-luxury)] hover:shadow-[0_24px_60px_-24px_rgb(17_18_20_/_0.28)] md:grid-cols-[2fr_1fr]">
+                <div className="aspect-[16/9] overflow-hidden bg-[image:var(--gradient-surface)] md:aspect-auto md:h-full">
                   {(featured.cover_url || featured.photos?.image_url) ? (
-                    <img src={featured.cover_url || featured.photos.image_url} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]" loading="lazy" />
+                    <img src={featured.cover_url || featured.photos.image_url} alt="" className="h-full w-full object-cover transition-transform duration-[900ms] ease-[var(--ease-luxury)] group-hover:scale-[1.02]" loading="lazy" />
                   ) : (
                     <div className="grid h-full place-items-center text-muted-foreground"><Layers className="h-6 w-6" /></div>
                   )}
                 </div>
-                <div className="flex flex-col justify-center p-6">
-                  <h3 className="font-display text-2xl tracking-tight">{featured.name}</h3>
-                  {featured.description && <p className="mt-2 text-sm text-muted-foreground">{featured.description}</p>}
-                  <span className="mt-4 text-xs uppercase tracking-widest text-muted-foreground transition-colors group-hover:text-foreground">View collection →</span>
+                <div className="flex flex-col justify-center p-7">
+                  <h3 className="font-display text-3xl tracking-tight">{featured.name}</h3>
+                  {featured.description && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{featured.description}</p>}
+                  <span className="eyebrow mt-5 transition-colors duration-300 group-hover:text-gold">View collection →</span>
                 </div>
               </Link>
             </section>
@@ -155,20 +156,20 @@ function ProfilePage() {
 
         {otherCollections.length > 0 && (
           <section className="mt-14">
-            <h2 className="font-display mb-4 text-2xl">Collections</h2>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <h2 className="font-display mb-5 text-3xl">Collections</h2>
+            <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
               {otherCollections.map((c) => (
-                <Link key={c.id} to="/c/$id" params={{ id: c.id }} className="group overflow-hidden rounded-lg border border-border bg-card">
-                  <div className="aspect-[5/4] overflow-hidden bg-muted">
+                <Link key={c.id} to="/c/$id" params={{ id: c.id }} className="group overflow-hidden rounded-xl bg-card ring-1 ring-foreground/[0.06] shadow-[var(--shadow-soft)] transition-shadow duration-500 ease-[var(--ease-luxury)] hover:shadow-[var(--shadow-elegant)]">
+                  <div className="aspect-[5/4] overflow-hidden bg-[image:var(--gradient-surface)]">
                     {(c.cover_url || c.photos?.image_url) ? (
-                      <img src={c.cover_url || c.photos.image_url} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
+                      <img src={c.cover_url || c.photos.image_url} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-[900ms] ease-[var(--ease-luxury)] group-hover:scale-[1.025]" />
                     ) : (
                       <div className="grid h-full place-items-center text-muted-foreground"><Layers className="h-6 w-6" /></div>
                     )}
                   </div>
-                  <div className="px-3 py-2.5">
+                  <div className="px-4 py-3">
                     <p className="truncate text-sm font-medium">{c.name}</p>
-                    {c.description && <p className="truncate text-xs text-muted-foreground">{c.description}</p>}
+                    {c.description && <p className="meta truncate text-xs text-muted-foreground">{c.description}</p>}
                   </div>
                 </Link>
               ))}
@@ -177,19 +178,19 @@ function ProfilePage() {
         )}
 
         <section className="mt-14">
-          <h2 className="font-display mb-4 text-2xl">Photographs</h2>
+          <h2 className="font-display mb-5 text-3xl">Photographs</h2>
           {photosQ.isLoading ? (
             <div className="h-40 animate-pulse rounded-lg bg-muted" />
           ) : !photosQ.data || photosQ.data.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-12 text-center">
+            <div className="rounded-2xl border border-dashed border-border bg-[image:var(--gradient-surface)] p-12 text-center">
               <p className="font-display text-lg">A quiet archive, for now.</p>
               <p className="mt-1 text-sm text-muted-foreground">No photographs yet.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {photosQ.data.map((p) => (
-                <Link key={p.id} to="/p/$id" params={{ id: p.id }} className="group block overflow-hidden rounded-md bg-muted">
-                  <img src={p.image_url} alt={p.caption ?? ""} loading="lazy" className="aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
+                <Link key={p.id} to="/p/$id" params={{ id: p.id }} className="group block overflow-hidden rounded-lg bg-[image:var(--gradient-surface)] ring-1 ring-foreground/[0.06] transition-shadow duration-500 ease-[var(--ease-luxury)] hover:shadow-[var(--shadow-elegant)]">
+                  <img src={p.image_url} alt={p.caption ?? ""} loading="lazy" className="aspect-square w-full object-cover transition-transform duration-[900ms] ease-[var(--ease-luxury)] group-hover:scale-[1.025]" />
                 </Link>
               ))}
             </div>
@@ -203,9 +204,9 @@ function ProfilePage() {
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
-      <div className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground">{icon}{label}</div>
-      <div className="font-display mt-1 text-xl">{value}</div>
+    <div className="rounded-xl border border-border/70 bg-card p-3.5 shadow-[var(--shadow-soft)]">
+      <div className="flex items-center gap-1.5 eyebrow">{icon}{label}</div>
+      <div className="font-display mt-1 text-2xl">{value}</div>
     </div>
   );
 }
