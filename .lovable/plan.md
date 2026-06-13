@@ -1,88 +1,131 @@
+## Goal
 
-## Plan: LensMark PWA Conversion
+Elevate LensMark to feel more premium and refined — without touching layout, navigation, terminology, tabs, screens, flows, or component structure. Pure aesthetic pass driven primarily by design tokens so the change propagates everywhere consistently.
 
-The footer and theme requirements (#7, #8) are already done from the previous turn — I'll verify them and skip if matching. The bulk of this work is wiring up installability + offline support safely so it never breaks the Lovable preview.
+## Scope
 
-### 1. PWA infrastructure (vite-plugin-pwa, controlled)
+Touched files (visual only):
+- `src/styles.css` — luxury palette, refined type scale, premium shadows, gradient + surface tokens, ease curve
+- `src/components/ui/button.tsx` — refine default/outline styling (shadow, tracking, hover)
+- `src/components/ui/card.tsx` — softer radius, layered shadow, softer border
+- `src/components/progressive-image.tsx` — softer placeholder + longer eased fade
+- `src/components/site-header.tsx` — refine header surface (no structure change)
+- `src/routes/index.tsx` — hero typography spacing, photo card chrome (same layout)
+- `src/routes/u.$username.tsx`, `src/routes/c.$id.tsx`, `src/routes/p.$id.tsx` — token-level polish only (chips, dividers, meta type, cover vignette)
 
-- Install `vite-plugin-pwa`.
-- Configure in `vite.config.ts` with:
-  - `registerType: "autoUpdate"`
-  - `injectRegister: null` (we register manually from a guarded wrapper)
-  - `devOptions: { enabled: false }`
-  - `manifest`: name "LensMark", short_name "LensMark", theme_color `#ffffff`, background_color `#ffffff`, display `standalone`, orientation `portrait`, start_url `/`, scope `/`, icons (192, 512, 512 maskable, apple-touch).
-  - `workbox`:
-    - `navigateFallback: "/"` with `navigateFallbackDenylist: [/^\/~oauth/]`
-    - HTML/navigations → `NetworkFirst`
-    - Same-origin hashed JS/CSS → `CacheFirst`
-    - Images (incl. Supabase storage origin) → `CacheFirst` with expiration (so viewed photos persist offline)
-    - Document/profile route responses → `NetworkFirst` with short cache (homepage, /p/*, /u/*)
+Not touched: routes, route tree, navigation items, tabs, section names (Mosaic / Vaults / Creators / Imprint / Account), upload flow, trust system, data, server functions, schema, copy.
 
-### 2. Guarded SW registration
+## 1. Color System
 
-Create `src/lib/register-sw.ts` that registers `/sw.js` only when ALL of:
-- `import.meta.env.PROD`
-- not inside iframe
-- hostname is not a Lovable preview/dev/beta host
-- URL has no `?sw=off`
+Replace tokens in `src/styles.css` with the requested palette, converted to `oklch`.
 
-In any refused context, unregister any existing `/sw.js`. Call this from `src/router.tsx` or `src/start.ts` client entry.
+Light (Warm Ivory base):
+- `--background` Warm Ivory `#F5F1EA`
+- `--foreground` Rich Charcoal `#111214`
+- `--card` `#FBF8F2` (slightly lifted ivory)
+- `--muted` `#ECE6DA`
+- `--muted-foreground` Muted Stone `#8C857C`
+- `--primary` Rich Charcoal
+- `--accent` Champagne Gold `#B89A5D` (used sparingly: chips, focus, hover accents)
+- `--ring` Champagne Gold, lower chroma
+- `--border` warm stone at ~12% opacity
 
-### 3. Icons & favicons
+Dark (Rich Charcoal base):
+- `--background` `#111214`
+- `--card` Soft Graphite `#1A1B1F`
+- `--popover` `#1A1B1F`
+- `--foreground` Warm Ivory `#F5F1EA`
+- `--muted` `#1F2024`
+- `--muted-foreground` Muted Stone `#8C857C`
+- `--primary` Warm Ivory
+- `--accent` Antique Brass `#8D734A` (deeper gold to avoid yellow brightness in dark)
+- `--ring` Antique Brass
+- `--border` ivory at ~9% opacity
 
-Generate brand assets with `imagegen` (LensMark camera mark, editorial monochrome on white):
-- `public/icon-192.png` (192×512 — solid bg per manifest theme)
-- `public/icon-512.png`
-- `public/icon-512-maskable.png` (safe-zone padded)
-- `public/apple-touch-icon.png` (180×180)
-- `public/favicon.svg` + `public/favicon-32.png`
+Add gold-aware tokens (for small accents only, never large fills):
+- `--gold` (Champagne light / Antique Brass dark)
+- `--gold-foreground`
+- `--gold-soft` (gold at ~14% alpha for subtle washes)
 
-Wire all `<link rel="icon">`, `apple-touch-icon`, `manifest`, and `theme-color` meta in `src/routes/__root.tsx` head().
+Registered in `@theme inline` so `bg-gold`, `text-gold`, `ring-gold`, `bg-gold-soft` are available.
 
-### 4. Install prompt
+## 2. Materials
 
-Add `src/components/install-prompt.tsx`:
-- Listens for `beforeinstallprompt`, stashes the event, shows a subtle bottom-sheet "Install LensMark" pill (dismissable, remembers dismissal in localStorage).
-- iOS Safari fallback: small one-time hint "Add to Home Screen via Share → Add to Home Screen" (only on iOS standalone-not-active).
-- Mount in `__root.tsx`.
+Add to `:root` / `.dark`:
+- `--shadow-elegant`: layered low-opacity shadow (`0 1px 0 …, 0 12px 32px -16px rgba(0,0,0,.18)`)
+- `--shadow-soft`: `0 1px 2px rgba(0,0,0,.04), 0 8px 24px -12px rgba(0,0,0,.10)`
+- `--gradient-surface`: very subtle top-to-bottom ivory/graphite gradient (hero + header)
+- `--gradient-gold`: champagne → antique brass (hairline dividers, focus glow only)
+- `--radius` raised from `0.5rem` to `0.75rem`
 
-### 5. Offline screen
+Used inline via `shadow-[var(--shadow-elegant)]` / `bg-[image:var(--gradient-surface)]`.
 
-Add `public/offline.html` — editorial-styled "You're offline" page (warm ivory or light, LensMark wordmark, short copy). Configure Workbox to fall back to it for navigations when both network and cache miss.
+## 3. Typography
 
-### 6. Mobile experience polish
+Keep Fraunces (display) + Inter (body). No font swap.
+- Tighten display tracking to `-0.025em` at sizes ≥ `text-5xl`
+- Body line-height bumped to `1.65`
+- Add `@utility meta` — small-caps numerics + tracking for meta rows (handles, dates, counts)
+- Add `@utility eyebrow` — centralizes the existing "uppercase tracking-widest text-xs muted" pattern
+- Scale unchanged — only property-level refinement, no layout shifts
 
-- `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">` in root.
-- `overscroll-behavior-y: none` on `html, body` in `src/styles.css` to disable pull-to-refresh.
-- Photo viewer already supports pinch-zoom (Phase 1). Add **swipe left/right between photos** in `src/components/photo-viewer.tsx` by accepting `onPrev`/`onNext` props and wiring touch swipe + keyboard arrows. Update `src/routes/p.$id.tsx` and the feed to pass neighbors when available (single-photo route: no neighbors, swipe disabled).
+## 4. Components (visual only)
 
-### 7. Footer & theme (verify)
+`button.tsx`:
+- Default: add `shadow-[var(--shadow-soft)]`, `tracking-[0.01em]`, refined hover (brightness lift, same color)
+- Outline: border becomes `border-foreground/15` hairline
+- No new variants, no API change
 
-- Confirm `src/routes/index.tsx` footer already reads `LensMark · Made by @sanfrfr._` linking to Instagram in a new tab. (Done last turn — re-check only.)
-- Confirm `theme-provider.tsx` defaults to light and ignores system. (Done last turn — re-check only.)
+`card.tsx`:
+- `rounded-xl` → `rounded-2xl`
+- Replace `shadow` with `shadow-[var(--shadow-elegant)]`
+- Border `border-border/70`
 
-### 8. Deployment / build
+`progressive-image.tsx`:
+- Placeholder uses `bg-[image:var(--gradient-surface)]` instead of flat muted
+- Fade extended to ~900ms with luxury ease
 
-- Ensure `vite-plugin-pwa` plays nicely with the TanStack Start Vite plugin (PWA plugin runs after, emits `sw.js` + `manifest.webmanifest` into the client build output).
-- No `ssr.external` changes.
-- Vercel compatibility: Lovable's TanStack Start template already produces a standard static + SSR output; PWA emits to the client public dir, which Vercel serves at the origin root. No special config needed.
-- Build runs automatically; fix any TS errors that surface.
+`site-header.tsx`:
+- Background `bg-background/70` + `backdrop-blur-2xl`, hairline gold-tinted border-bottom — same height, same items
 
-### Technical notes
+`index.tsx`:
+- Hero chip uses `bg-gold-soft text-gold` (champagne wash, not yellow)
+- Photo card border softened, hover lifts `shadow-elegant`, caption row uses `.meta`
+- Empty state + skeleton use surface gradient
+- No grid, columns, or copy changes
 
-- `vite-plugin-pwa` `generateSW` strategy — never hand-written SW.
-- Cache Storage is origin-scoped, so image cache uses a named bucket with `maxEntries: 200, maxAgeSeconds: 30 days`.
-- Supabase storage URLs are cross-origin → add their origin to `runtimeCaching` urlPattern.
-- Preview safety: the registration wrapper guarantees no SW ever installs in `id-preview--*.lovable.app` / iframe, so the editor preview won't get stuck on cached HTML.
-- Skip `og:image` until brand artwork lands (per head-meta guidance).
+`u.$username.tsx` / `c.$id.tsx` / `p.$id.tsx`:
+- Existing chips/badges use `.eyebrow` + `bg-gold-soft` where appropriate
+- Cover image gets a subtle bottom vignette via gradient overlay (className only)
+- Social icons: `text-muted-foreground hover:text-gold`
 
-### Files
+## 5. Photography
 
-**New:** `src/lib/register-sw.ts`, `src/components/install-prompt.tsx`, `public/offline.html`, `public/icon-192.png`, `public/icon-512.png`, `public/icon-512-maskable.png`, `public/apple-touch-icon.png`, `public/favicon.svg`.
+- Card chrome lightened so image edge dominates
+- Hover scale `1.02` → `1.015` (more restrained)
+- Caption row is a thin hairline strip — removes the "placeholder card" feel
+- Progressive blur-in slightly longer and softer
 
-**Edited:** `vite.config.ts`, `src/routes/__root.tsx`, `src/router.tsx` (or `src/start.ts` client side), `src/styles.css`, `src/components/photo-viewer.tsx`, `src/routes/p.$id.tsx`, `package.json`.
+## 6. Motion
 
-### Out of scope (call out)
+Add to `src/styles.css`:
+- `--ease-luxury: cubic-bezier(0.22, 1, 0.36, 1)`
+- Standardize button/card/link transitions on `duration-300 ease-[var(--ease-luxury)]`
+- No new animations, no entrance choreography
 
-- "Lighthouse PWA score above 95" — I'll set up everything required to pass (installable manifest, valid SW, offline fallback, themed colors, proper icons). I can't run Lighthouse from here; you'd verify after deploy.
-- "Cache profile pages" — handled generically via NetworkFirst on navigations + image cache; per-page data caching beyond that would need TanStack Query persistence, which is a larger phase and not included unless you want it.
+## Out of scope (explicitly)
+
+- No new routes, screens, sections, or tabs
+- No renames (Mosaic / Vaults / Creators / Imprint / Account stay)
+- No layout, grid, or nav changes
+- No new dependencies, components, or shadcn additions
+- No data / RLS / server-function / schema changes
+- No copy rewrites
+
+## Verification
+
+- Build passes (token + className changes only)
+- Visual check on `/`, `/u/:username`, `/c/:id`, `/p/:id`, `/settings`, `/upload`, `/auth` in both themes — confirm no layout shift, only surface/typography/shadow refinement
+- Confirm gold never appears as a large background fill — only hairlines, chips, focus rings, hover accents
+
+Ready to switch to build mode and apply.

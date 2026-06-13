@@ -38,17 +38,17 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-border/50 bg-background/70 backdrop-blur-2xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link to="/" className="flex items-center gap-2">
-          <Camera className="h-5 w-5" strokeWidth={1.5} />
+          <Camera className="h-5 w-5 text-gold" strokeWidth={1.5} />
           <span className="font-display text-xl tracking-tight">LensMark</span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
           <Link
             to="/"
             activeOptions={{ exact: true }}
-            className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground data-[status=active]:text-foreground"
+            className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors duration-300 ease-[var(--ease-luxury)] hover:text-foreground data-[status=active]:text-foreground"
           >
             <span className="inline-flex items-center gap-2"><Compass className="h-4 w-4" strokeWidth={1.5} /> Discover</span>
           </Link>
@@ -79,7 +79,7 @@ export function SiteHeader() {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="ml-1 grid h-9 w-9 place-items-center rounded-full border border-border bg-secondary text-sm font-medium hover:bg-accent">
+              <button className="ml-1 grid h-9 w-9 place-items-center rounded-full border border-foreground/15 bg-secondary text-sm font-medium ring-1 ring-inset ring-foreground/[0.04] transition-colors hover:border-gold/60">
                     {(username ?? user.email ?? "?").slice(0, 1).toUpperCase()}
                   </button>
                 </DropdownMenuTrigger>
