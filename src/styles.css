@@ -61,31 +61,44 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-gold-soft: var(--gold-soft);
 }
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;
   --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --background: oklch(0.985 0.003 95);
-  --foreground: oklch(0.18 0.005 285);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.005 285);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.005 285);
-  --primary: oklch(0.18 0.005 285);
-  --primary-foreground: oklch(0.985 0.003 95);
-  --secondary: oklch(0.95 0.003 95);
-  --secondary-foreground: oklch(0.18 0.005 285);
-  --muted: oklch(0.95 0.003 95);
-  --muted-foreground: oklch(0.55 0.008 285);
-  --accent: oklch(0.93 0.005 95);
-  --accent-foreground: oklch(0.18 0.005 285);
-  --destructive: oklch(0.55 0.18 27);
-  --destructive-foreground: oklch(0.985 0.003 95);
-  --border: oklch(0.9 0.004 95);
-  --input: oklch(0.9 0.004 95);
-  --ring: oklch(0.55 0.008 285);
+  /* Warm Ivory base · Rich Charcoal ink · Champagne Gold accent */
+  --background: oklch(0.952 0.012 85);          /* #F5F1EA */
+  --foreground: oklch(0.18 0.006 60);           /* #111214 */
+  --card: oklch(0.972 0.012 85);                /* #FBF8F2 */
+  --card-foreground: oklch(0.18 0.006 60);
+  --popover: oklch(0.972 0.012 85);
+  --popover-foreground: oklch(0.18 0.006 60);
+  --primary: oklch(0.18 0.006 60);
+  --primary-foreground: oklch(0.952 0.012 85);
+  --secondary: oklch(0.918 0.014 82);
+  --secondary-foreground: oklch(0.18 0.006 60);
+  --muted: oklch(0.918 0.014 82);               /* #ECE6DA */
+  --muted-foreground: oklch(0.58 0.012 70);     /* #8C857C */
+  --accent: oklch(0.7 0.07 78);                 /* Champagne Gold #B89A5D */
+  --accent-foreground: oklch(0.18 0.006 60);
+  --destructive: oklch(0.52 0.16 27);
+  --destructive-foreground: oklch(0.96 0.01 85);
+  --border: oklch(0.18 0.006 60 / 12%);
+  --input: oklch(0.18 0.006 60 / 14%);
+  --ring: oklch(0.7 0.07 78 / 60%);
+  --gold: oklch(0.7 0.07 78);                   /* Champagne Gold */
+  --gold-foreground: oklch(0.18 0.006 60);
+  --gold-soft: oklch(0.7 0.07 78 / 14%);
+  /* Materials */
+  --shadow-soft: 0 1px 2px rgb(17 18 20 / 0.04), 0 8px 24px -12px rgb(17 18 20 / 0.10);
+  --shadow-elegant: 0 1px 0 rgb(17 18 20 / 0.04), 0 14px 36px -18px rgb(17 18 20 / 0.18);
+  --gradient-surface: linear-gradient(180deg, oklch(0.972 0.012 85) 0%, oklch(0.952 0.012 85) 100%);
+  --gradient-gold: linear-gradient(90deg, oklch(0.7 0.07 78) 0%, oklch(0.56 0.06 70) 100%);
+  --ease-luxury: cubic-bezier(0.22, 1, 0.36, 1);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -102,26 +115,33 @@
 }
 
 .dark {
-  /* Museum archive: deep charcoal, warm ivory, graphite borders */
-  --background: oklch(0.135 0.004 60);
-  --foreground: oklch(0.94 0.012 85);
-  --card: oklch(0.165 0.004 60);
-  --card-foreground: oklch(0.94 0.012 85);
-  --popover: oklch(0.165 0.004 60);
-  --popover-foreground: oklch(0.94 0.012 85);
-  --primary: oklch(0.94 0.012 85);
-  --primary-foreground: oklch(0.135 0.004 60);
-  --secondary: oklch(0.205 0.004 60);
-  --secondary-foreground: oklch(0.94 0.012 85);
-  --muted: oklch(0.205 0.004 60);
-  --muted-foreground: oklch(0.66 0.012 80);
-  --accent: oklch(0.24 0.005 60);
-  --accent-foreground: oklch(0.94 0.012 85);
-  --destructive: oklch(0.62 0.2 25);
-  --destructive-foreground: oklch(0.985 0.003 95);
-  --border: oklch(0.94 0.012 85 / 9%);
-  --input: oklch(0.94 0.012 85 / 13%);
-  --ring: oklch(0.66 0.012 80);
+  /* Rich Charcoal base · Soft Graphite surfaces · Antique Brass accent */
+  --background: oklch(0.165 0.004 60);          /* #111214 */
+  --foreground: oklch(0.948 0.012 85);          /* #F5F1EA */
+  --card: oklch(0.205 0.004 60);                /* #1A1B1F */
+  --card-foreground: oklch(0.948 0.012 85);
+  --popover: oklch(0.205 0.004 60);
+  --popover-foreground: oklch(0.948 0.012 85);
+  --primary: oklch(0.948 0.012 85);
+  --primary-foreground: oklch(0.165 0.004 60);
+  --secondary: oklch(0.235 0.004 60);
+  --secondary-foreground: oklch(0.948 0.012 85);
+  --muted: oklch(0.235 0.004 60);               /* #1F2024 */
+  --muted-foreground: oklch(0.66 0.012 75);     /* #8C857C */
+  --accent: oklch(0.56 0.06 70);                /* Antique Brass #8D734A */
+  --accent-foreground: oklch(0.948 0.012 85);
+  --destructive: oklch(0.6 0.18 25);
+  --destructive-foreground: oklch(0.96 0.01 85);
+  --border: oklch(0.948 0.012 85 / 9%);
+  --input: oklch(0.948 0.012 85 / 13%);
+  --ring: oklch(0.56 0.06 70 / 70%);
+  --gold: oklch(0.62 0.07 74);                  /* Antique Brass, lifted slightly for legibility */
+  --gold-foreground: oklch(0.165 0.004 60);
+  --gold-soft: oklch(0.62 0.07 74 / 16%);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 24px -12px rgb(0 0 0 / 0.55);
+  --shadow-elegant: 0 1px 0 rgb(0 0 0 / 0.4), 0 18px 40px -20px rgb(0 0 0 / 0.7);
+  --gradient-surface: linear-gradient(180deg, oklch(0.205 0.004 60) 0%, oklch(0.165 0.004 60) 100%);
+  --gradient-gold: linear-gradient(90deg, oklch(0.62 0.07 74) 0%, oklch(0.44 0.05 70) 100%);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -148,6 +168,7 @@
     font-family: var(--font-sans);
     font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
+    line-height: 1.65;
   }
 
   html, body {
@@ -158,5 +179,32 @@
     font-family: var(--font-display);
     font-feature-settings: "ss01";
     letter-spacing: -0.02em;
+    line-height: 1.08;
   }
+
+  /* Tighter tracking at large display sizes for a more luxurious feel */
+  .font-display.text-5xl,
+  .font-display.text-6xl,
+  .font-display.text-7xl,
+  .font-display.text-8xl {
+    letter-spacing: -0.028em;
+  }
+}
+
+@utility eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+@utility meta {
+  font-feature-settings: "ss01", "cv11", "lnum", "tnum";
+  letter-spacing: 0.01em;
+}
+
+@utility hairline-gold {
+  background-image: var(--gradient-gold);
+  opacity: 0.35;
 }

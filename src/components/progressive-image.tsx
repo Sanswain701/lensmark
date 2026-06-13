@@ -20,7 +20,7 @@ aspectRatio?: number; // width / height
 
 return (
 <div
-className="relative overflow-hidden bg-muted"
+className="relative overflow-hidden bg-[image:var(--gradient-surface)]"
 style={{
 aspectRatio: aspectRatio ? "${aspectRatio}" : undefined,
 ...style,
@@ -39,7 +39,7 @@ filter: loaded
 ? "contrast(1.08) saturate(1.12) brightness(0.96)"
 : undefined,
 }}
-className={"h-full w-full object-cover transition-[opacity,filter] duration-700 ease-out ${ loaded ? "opacity-100 blur-0" : "opacity-0 blur-md" } ${className}"}
+className={"h-full w-full object-cover transition-[opacity,filter] duration-[900ms] ease-[var(--ease-luxury)] ${ loaded ? "opacity-100 blur-0" : "opacity-0 blur-md" } ${className}"}
 />
 </div>
 );
