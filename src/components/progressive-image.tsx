@@ -33,13 +33,8 @@ export function ProgressiveImage({
           setLoaded(true);
           onLoad?.(e);
         }}
-        style={{
-          filter: loaded
-            ? "contrast(1.06) saturate(1.08) brightness(0.98)"
-            : undefined,
-        }}
-        className={`h-full w-full object-cover transition-[opacity,filter] duration-[900ms] ease-[var(--ease-luxury)] ${
-          loaded ? "opacity-100 blur-0" : "opacity-0 blur-md"
+        className={`h-full w-full object-cover transition-opacity duration-700 ease-[var(--ease-luxury)] ${
+          loaded ? "opacity-100" : "opacity-0"
         } ${className}`}
       />
     </div>
