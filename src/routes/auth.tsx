@@ -110,7 +110,16 @@ function AuthPage() {
           <form onSubmit={submit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             {mode !== "forgot" && (
               <div className="space-y-1.5">
@@ -124,6 +133,7 @@ function AuthPage() {
                 </div>
                 <Input
                   id="password"
+                  name="password"
                   type="password"
                   autoComplete={mode === "signup" ? "new-password" : "current-password"}
                   value={password}
