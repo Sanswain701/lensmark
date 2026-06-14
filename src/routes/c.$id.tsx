@@ -44,7 +44,7 @@ function CollectionPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("collection_photos")
-        .select("photo_id, photos(id,image_url,caption,created_at)")
+        .select("photo_id, photos(id,image_url,medium_url,thumb_url,caption,created_at)")
         .eq("collection_id", id);
       if (error) throw error;
       return (data ?? []).map((x: any) => x.photos).filter(Boolean);
@@ -157,7 +157,15 @@ function CollectionPage() {
           {photosQ.data?.map((p: any) => (
             <div key={p.id} className="relative mb-4 break-inside-avoid overflow-hidden rounded-lg bg-muted">
               <Link to="/p/$id" params={{ id: p.id }} className="block">
-                <img src={p.image_url} alt={p.caption ?? ""} loading="lazy" className="w-full" />
+                <img
+                  src={p.medium_url || p.image_url}
+                  srcSet={p.thumb_url && p.medium_url ? `${p.thumb_url} 400w, ${p.medium_url} 2000w` : undefined}
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  alt={p.caption ?? ""}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full"
+                />
               </Link>
               {isOwner && (
                 <button
