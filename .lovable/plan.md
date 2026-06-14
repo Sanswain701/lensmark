@@ -1,131 +1,95 @@
-## Goal
 
-Elevate LensMark to feel more premium and refined — without touching layout, navigation, terminology, tabs, screens, flows, or component structure. Pure aesthetic pass driven primarily by design tokens so the change propagates everywhere consistently.
+# Premium image processing pipeline for LensMark
 
-## Scope
+Goal: photos look like Sony Alpha JPEG / iPhone Smart HDR — controlled highlights, rich detail, natural color. Originals are preserved untouched and shown on the detail page; optimized WebP variants power every feed/grid surface.
 
-Touched files (visual only):
-- `src/styles.css` — luxury palette, refined type scale, premium shadows, gradient + surface tokens, ease curve
-- `src/components/ui/button.tsx` — refine default/outline styling (shadow, tracking, hover)
-- `src/components/ui/card.tsx` — softer radius, layered shadow, softer border
-- `src/components/progressive-image.tsx` — softer placeholder + longer eased fade
-- `src/components/site-header.tsx` — refine header surface (no structure change)
-- `src/routes/index.tsx` — hero typography spacing, photo card chrome (same layout)
-- `src/routes/u.$username.tsx`, `src/routes/c.$id.tsx`, `src/routes/p.$id.tsx` — token-level polish only (chips, dividers, meta type, cover vignette)
+## Architecture choice
 
-Not touched: routes, route tree, navigation items, tabs, section names (Mosaic / Vaults / Creators / Imprint / Account), upload flow, trust system, data, server functions, schema, copy.
+All processing happens **client-side in the browser** before upload, using `<canvas>` + `createImageBitmap`:
 
-## 1. Color System
+- The Worker SSR runtime cannot run `sharp` / native image libs, and a pure-JS server pipeline would be slow and double the upload bandwidth.
+- Browsers already decode the file for preview, so we reuse that decode.
+- `imageOrientation: "from-image"` on `createImageBitmap` preserves EXIF orientation natively (no exif-js dependency).
+- Canvas `toBlob("image/webp", q)` is supported in all current browsers we target (PWA).
 
-Replace tokens in `src/styles.css` with the requested palette, converted to `oklch`.
+A small graceful fallback path: if WebP encoding fails (very old browser), we fall back to JPEG q=0.9 for the optimized variants — the original is always uploaded as-is regardless.
 
-Light (Warm Ivory base):
-- `--background` Warm Ivory `#F5F1EA`
-- `--foreground` Rich Charcoal `#111214`
-- `--card` `#FBF8F2` (slightly lifted ivory)
-- `--muted` `#ECE6DA`
-- `--muted-foreground` Muted Stone `#8C857C`
-- `--primary` Rich Charcoal
-- `--accent` Champagne Gold `#B89A5D` (used sparingly: chips, focus, hover accents)
-- `--ring` Champagne Gold, lower chroma
-- `--border` warm stone at ~12% opacity
+## Storage layout (no schema migration needed beyond two nullable columns)
 
-Dark (Rich Charcoal base):
-- `--background` `#111214`
-- `--card` Soft Graphite `#1A1B1F`
-- `--popover` `#1A1B1F`
-- `--foreground` Warm Ivory `#F5F1EA`
-- `--muted` `#1F2024`
-- `--muted-foreground` Muted Stone `#8C857C`
-- `--primary` Warm Ivory
-- `--accent` Antique Brass `#8D734A` (deeper gold to avoid yellow brightness in dark)
-- `--ring` Antique Brass
-- `--border` ivory at ~9% opacity
+Bucket `photos` (private, already exists). For each upload:
 
-Add gold-aware tokens (for small accents only, never large fills):
-- `--gold` (Champagne light / Antique Brass dark)
-- `--gold-foreground`
-- `--gold-soft` (gold at ~14% alpha for subtle washes)
+```
+{uid}/{photoId}/original.{ext}   ← untouched bytes from the user's file
+{uid}/{photoId}/medium.webp      ← max 2000px long edge, WebP q=0.90
+{uid}/{photoId}/thumb.webp       ← 400px long edge,      WebP q=0.85
+```
 
-Registered in `@theme inline` so `bg-gold`, `text-gold`, `ring-gold`, `bg-gold-soft` are available.
+Signed URLs (1 year) are generated for all three and stored on the row.
 
-## 2. Materials
+### `photos` table additions (one migration)
 
-Add to `:root` / `.dark`:
-- `--shadow-elegant`: layered low-opacity shadow (`0 1px 0 …, 0 12px 32px -16px rgba(0,0,0,.18)`)
-- `--shadow-soft`: `0 1px 2px rgba(0,0,0,.04), 0 8px 24px -12px rgba(0,0,0,.10)`
-- `--gradient-surface`: very subtle top-to-bottom ivory/graphite gradient (hero + header)
-- `--gradient-gold`: champagne → antique brass (hairline dividers, focus glow only)
-- `--radius` raised from `0.5rem` to `0.75rem`
+```sql
+ALTER TABLE public.photos
+  ADD COLUMN medium_url   text,
+  ADD COLUMN thumb_url    text,
+  ADD COLUMN medium_path  text,
+  ADD COLUMN thumb_path   text,
+  ADD COLUMN width        int,
+  ADD COLUMN height       int;
+```
 
-Used inline via `shadow-[var(--shadow-elegant)]` / `bg-[image:var(--gradient-surface)]`.
+`image_url` / `storage_path` keep their existing meaning = **original**. Old rows without the new columns fall back to `image_url` in the UI, so nothing breaks.
 
-## 3. Typography
+## Processing pipeline (`src/lib/image-pipeline.ts`, new)
 
-Keep Fraunces (display) + Inter (body). No font swap.
-- Tighten display tracking to `-0.025em` at sizes ≥ `text-5xl`
-- Body line-height bumped to `1.65`
-- Add `@utility meta` — small-caps numerics + tracking for meta rows (handles, dates, counts)
-- Add `@utility eyebrow` — centralizes the existing "uppercase tracking-widest text-xs muted" pattern
-- Scale unchanged — only property-level refinement, no layout shifts
+Pure client module, no new deps. Pipeline per variant:
 
-## 4. Components (visual only)
+1. Decode source via `createImageBitmap(file, { imageOrientation: "from-image" })`. EXIF rotation baked in, never upscale (`Math.min(1, target/longEdge)`).
+2. Draw to an offscreen canvas at target size, `imageSmoothingQuality = "high"`.
+3. Single-pass pixel adjustment over `ImageData` applying, in this order:
+   - **Auto-exposure**: compute luminance histogram, find 0.5% / 99.5% percentiles, gentle linear stretch capped at ±8% so well-exposed images barely change.
+   - **Highlight recovery**: for pixels with L > 0.75, compress with `L' = 0.75 + (L-0.75) * 0.72` (≈28% rolloff). Prevents blown whites, preserves cloud/sky gradient.
+   - **Shadow lift**: for L < 0.25, `L' = L + (0.25-L) * 0.18`. Mild.
+   - **Contrast +10%** around mid-gray: `c = (c-0.5) * 1.10 + 0.5`, applied in linear-ish space to avoid crushing.
+   - **Vibrance +5% / Saturation +2%**: HSL-style boost that scales inversely with current saturation (vibrance), then a flat 2% sat. Skin-tone guard: hues in [10°, 50°] get 60% of the boost so faces stay natural.
+   - **Mild sharpen**: 3×3 unsharp mask (amount 0.35, radius 1px) applied only to the luminance channel.
+4. Encode: `canvas.toBlob("image/webp", q)` (0.90 medium / 0.85 thumb). JPEG fallback if `null`.
 
-`button.tsx`:
-- Default: add `shadow-[var(--shadow-soft)]`, `tracking-[0.01em]`, refined hover (brightness lift, same color)
-- Outline: border becomes `border-foreground/15` hairline
-- No new variants, no API change
+Performance: medium variant ≈ 80–200 ms on a mid-range phone for a 12 MP photo. Thumb is fast. We run them sequentially after the upload of the original has *started* (parallel network + CPU), with a toast that reflects progress: "Uploading… Optimizing… Done."
 
-`card.tsx`:
-- `rounded-xl` → `rounded-2xl`
-- Replace `shadow` with `shadow-[var(--shadow-elegant)]`
-- Border `border-border/70`
+## Upload flow changes (`src/routes/_authenticated/upload.tsx`)
 
-`progressive-image.tsx`:
-- Placeholder uses `bg-[image:var(--gradient-surface)]` instead of flat muted
-- Fade extended to ~900ms with luxury ease
+Replace the single-upload block with:
 
-`site-header.tsx`:
-- Background `bg-background/70` + `backdrop-blur-2xl`, hairline gold-tinted border-bottom — same height, same items
+```
+1. const photoId = crypto.randomUUID()
+2. parallel:
+     a. supabase.storage.upload(`${uid}/${photoId}/original.${ext}`, file)   // untouched
+     b. const { medium, thumb, width, height } = await processImage(file)
+        await upload medium.webp + thumb.webp
+3. createSignedUrl x3 (1 year)
+4. insert photos row with image_url=original, medium_url, thumb_url, *_path, width, height
+```
 
-`index.tsx`:
-- Hero chip uses `bg-gold-soft text-gold` (champagne wash, not yellow)
-- Photo card border softened, hover lifts `shadow-elegant`, caption row uses `.meta`
-- Empty state + skeleton use surface gradient
-- No grid, columns, or copy changes
+Validation/limits unchanged (12 MB, JPG/PNG/WebP/AVIF). HEIC stays out of scope (already not in the allow-list).
 
-`u.$username.tsx` / `c.$id.tsx` / `p.$id.tsx`:
-- Existing chips/badges use `.eyebrow` + `bg-gold-soft` where appropriate
-- Cover image gets a subtle bottom vignette via gradient overlay (className only)
-- Social icons: `text-muted-foreground hover:text-gold`
+## Display rules
 
-## 5. Photography
+- **Feed / profile / collections / discovery** → use `medium_url` (with `thumb_url` as the `ProgressiveImage` placeholder for instant paint), srcset `thumb_url 400w, medium_url 2000w`, `sizes` per grid breakpoint, `loading="lazy"`, `decoding="async"`.
+- **Photo detail `/p/$id`** → use `image_url` (original), preloaded via route `head().links` `rel="preload" as="image"`.
+- **Photo card hover/zoom** → still medium; only the detail page pays the original-size bandwidth.
 
-- Card chrome lightened so image edge dominates
-- Hover scale `1.02` → `1.015` (more restrained)
-- Caption row is a thin hairline strip — removes the "placeholder card" feel
-- Progressive blur-in slightly longer and softer
+`ProgressiveImage` gets two new optional props (`srcSet`, `sizes`, `placeholderSrc`) — existing callers keep working.
 
-## 6. Motion
+## Backward compatibility
 
-Add to `src/styles.css`:
-- `--ease-luxury: cubic-bezier(0.22, 1, 0.36, 1)`
-- Standardize button/card/link transitions on `duration-300 ease-[var(--ease-luxury)]`
-- No new animations, no entrance choreography
+A tiny helper `displayUrl(photo, "medium" | "thumb" | "original")` returns the right URL, falling back to `image_url` when the optimized columns are null (old rows). No backfill required; old photos simply render from the original until re-uploaded.
 
-## Out of scope (explicitly)
+## Files touched
 
-- No new routes, screens, sections, or tabs
-- No renames (Mosaic / Vaults / Creators / Imprint / Account stay)
-- No layout, grid, or nav changes
-- No new dependencies, components, or shadcn additions
-- No data / RLS / server-function / schema changes
-- No copy rewrites
+- **New**: `src/lib/image-pipeline.ts`, `supabase/migrations/<ts>_photos_variants.sql`
+- **Edit**: `src/routes/_authenticated/upload.tsx` (pipeline + multi-upload), `src/components/progressive-image.tsx` (srcset/sizes/placeholder props), `src/routes/index.tsx` / `u.$username.tsx` / `c.$id.tsx` (use medium + srcset), `src/routes/p.$id.tsx` (preload original, keep using `image_url`).
 
-## Verification
+## Out of scope
 
-- Build passes (token + className changes only)
-- Visual check on `/`, `/u/:username`, `/c/:id`, `/p/:id`, `/settings`, `/upload`, `/auth` in both themes — confirm no layout shift, only surface/typography/shadow refinement
-- Confirm gold never appears as a large background fill — only hairlines, chips, focus rings, hover accents
-
-Ready to switch to build mode and apply.
+No redesign, no layout changes, no new routes, no new deps, no server-side processing, no HEIC support, no re-processing of historical photos.

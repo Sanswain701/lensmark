@@ -33,7 +33,7 @@ function PhotoPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("photos")
-        .select("id,image_url,caption,created_at,appreciations_count,owner_id,storage_path,profiles!photos_owner_id_fkey(username,display_name)")
+        .select("id,image_url,medium_url,thumb_url,medium_path,thumb_path,caption,created_at,appreciations_count,owner_id,storage_path,profiles!photos_owner_id_fkey(username,display_name)")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
@@ -91,7 +91,10 @@ function PhotoPage() {
   const deletePhoto = async () => {
     if (!photoQ.data) return;
     if (!confirm("Delete this photograph permanently?")) return;
-    await supabase.storage.from("photos").remove([photoQ.data.storage_path]);
+    const paths = [photoQ.data.storage_path, photoQ.data.medium_path, photoQ.data.thumb_path].filter(
+      (p): p is string => !!p,
+    );
+    await supabase.storage.from("photos").remove(paths);
     const { error } = await supabase.from("photos").delete().eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Removed.");
