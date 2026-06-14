@@ -54,7 +54,7 @@ function ProfilePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("photos")
-        .select("id,image_url,caption,created_at")
+        .select("id,image_url,medium_url,thumb_url,caption,created_at")
         .eq("owner_id", profile!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -190,7 +190,15 @@ function ProfilePage() {
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {photosQ.data.map((p) => (
                 <Link key={p.id} to="/p/$id" params={{ id: p.id }} className="group block overflow-hidden rounded-lg bg-[image:var(--gradient-surface)] ring-1 ring-foreground/[0.06] transition-shadow duration-500 ease-[var(--ease-luxury)] hover:shadow-[var(--shadow-elegant)]">
-                  <img src={p.image_url} alt={p.caption ?? ""} loading="lazy" className="aspect-square w-full object-cover transition-transform duration-[900ms] ease-[var(--ease-luxury)] group-hover:scale-[1.025]" />
+                  <img
+                    src={(p as any).thumb_url || (p as any).medium_url || p.image_url}
+                    srcSet={(p as any).thumb_url && (p as any).medium_url ? `${(p as any).thumb_url} 400w, ${(p as any).medium_url} 2000w` : undefined}
+                    sizes="(min-width: 768px) 33vw, 50vw"
+                    alt={p.caption ?? ""}
+                    loading="lazy"
+                    decoding="async"
+                    className="aspect-square w-full object-cover transition-transform duration-[900ms] ease-[var(--ease-luxury)] group-hover:scale-[1.025]"
+                  />
                 </Link>
               ))}
             </div>
