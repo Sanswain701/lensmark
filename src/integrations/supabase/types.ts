@@ -175,8 +175,12 @@ export type Database = {
           height: number | null
           id: string
           image_url: string
+          medium_path: string | null
+          medium_url: string | null
           owner_id: string
           storage_path: string
+          thumb_path: string | null
+          thumb_url: string | null
           width: number | null
         }
         Insert: {
@@ -186,8 +190,12 @@ export type Database = {
           height?: number | null
           id?: string
           image_url: string
+          medium_path?: string | null
+          medium_url?: string | null
           owner_id: string
           storage_path: string
+          thumb_path?: string | null
+          thumb_url?: string | null
           width?: number | null
         }
         Update: {
@@ -197,8 +205,12 @@ export type Database = {
           height?: number | null
           id?: string
           image_url?: string
+          medium_path?: string | null
+          medium_url?: string | null
           owner_id?: string
           storage_path?: string
+          thumb_path?: string | null
+          thumb_url?: string | null
           width?: number | null
         }
         Relationships: [
