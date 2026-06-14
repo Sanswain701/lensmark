@@ -20,6 +20,8 @@ export const Route = createFileRoute("/")({
 type Photo = {
   id: string;
   image_url: string;
+  medium_url: string | null;
+  thumb_url: string | null;
   caption: string | null;
   created_at: string;
   appreciations_count: number;
@@ -33,7 +35,7 @@ function Home() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("photos")
-        .select("id,image_url,caption,created_at,appreciations_count,owner_id,profiles!photos_owner_id_fkey(username,display_name,avatar_url)")
+        .select("id,image_url,medium_url,thumb_url,caption,created_at,appreciations_count,owner_id,profiles!photos_owner_id_fkey(username,display_name,avatar_url)")
         .order("created_at", { ascending: false })
         .limit(40);
       if (error) throw error;
@@ -105,6 +107,10 @@ function Home() {
 }
 
 function PhotoCard({ photo }: { photo: Photo }) {
+  const display = photo.medium_url || photo.image_url;
+  const srcSet = photo.thumb_url && photo.medium_url
+    ? `${photo.thumb_url} 400w, ${photo.medium_url} 2000w`
+    : undefined;
   return (
     <div className="mb-5 break-inside-avoid sm:mb-7">
       <Link
@@ -114,7 +120,9 @@ function PhotoCard({ photo }: { photo: Photo }) {
       >
         <div className="relative overflow-hidden bg-[image:var(--gradient-surface)]">
           <img
-            src={photo.image_url}
+            src={display}
+            srcSet={srcSet}
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             alt={photo.caption ?? "Untitled"}
             loading="lazy"
             decoding="async"
