@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Camera, Upload as UploadIcon } from "lucide-react";
+import { processImage } from "@/lib/image-pipeline";
 
 export const Route = createFileRoute("/_authenticated/upload")({
 head: () => ({ meta: [{ title: "Upload · LensMark" }] }),
@@ -66,34 +67,82 @@ try {
 
   const uid = u.user.id;
 
-  const ext =
-    file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const photoId = crypto.randomUUID();
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
+  const originalPath = `${uid}/${photoId}/original.${ext}`;
 
-  const path = `${uid}/${crypto.randomUUID()}.${ext}`;
+  // Process variants in parallel with the original upload.
+  toast.message("Optimizing image…", { id: loadingToast });
+  const processingPromise = processImage(file).catch((err) => {
+    console.warn("[upload] processing failed, will fall back to original only", err);
+    return null;
+  });
 
-  const up = await supabase.storage
+  // Upload the untouched original.
+  const upOriginal = await supabase.storage
     .from("photos")
-    .upload(path, file, {
-      contentType: file.type,
-    });
+    .upload(originalPath, file, { contentType: file.type, upsert: false });
+  if (upOriginal.error) throw upOriginal.error;
 
-  if (up.error) throw up.error;
+  const processed = await processingPromise;
 
-  const signed = await supabase.storage
+  let mediumPath: string | null = null;
+  let thumbPath: string | null = null;
+  let mediumUrl: string | null = null;
+  let thumbUrl: string | null = null;
+  let width: number | null = null;
+  let height: number | null = null;
+
+  if (processed) {
+    mediumPath = `${uid}/${photoId}/medium.${processed.medium.ext}`;
+    thumbPath = `${uid}/${photoId}/thumb.${processed.thumb.ext}`;
+    width = processed.sourceWidth;
+    height = processed.sourceHeight;
+
+    const [upMed, upThumb] = await Promise.all([
+      supabase.storage.from("photos").upload(mediumPath, processed.medium.blob, {
+        contentType: processed.medium.contentType,
+        upsert: false,
+      }),
+      supabase.storage.from("photos").upload(thumbPath, processed.thumb.blob, {
+        contentType: processed.thumb.contentType,
+        upsert: false,
+      }),
+    ]);
+    if (upMed.error) throw upMed.error;
+    if (upThumb.error) throw upThumb.error;
+  }
+
+  const YEAR = 60 * 60 * 24 * 365;
+  const signedOriginal = await supabase.storage
     .from("photos")
-    .createSignedUrl(
-      path,
-      60 * 60 * 24 * 365
-    );
+    .createSignedUrl(originalPath, YEAR);
+  if (signedOriginal.error) throw signedOriginal.error;
 
-  if (signed.error) throw signed.error;
+  if (mediumPath && thumbPath) {
+    const [sm, st] = await Promise.all([
+      supabase.storage.from("photos").createSignedUrl(mediumPath, YEAR),
+      supabase.storage.from("photos").createSignedUrl(thumbPath, YEAR),
+    ]);
+    if (sm.error) throw sm.error;
+    if (st.error) throw st.error;
+    mediumUrl = sm.data.signedUrl;
+    thumbUrl = st.data.signedUrl;
+  }
 
   const ins = await supabase
     .from("photos")
     .insert({
+      id: photoId,
       owner_id: uid,
-      image_url: signed.data.signedUrl,
-      storage_path: path,
+      image_url: signedOriginal.data.signedUrl,
+      storage_path: originalPath,
+      medium_url: mediumUrl,
+      thumb_url: thumbUrl,
+      medium_path: mediumPath,
+      thumb_path: thumbPath,
+      width,
+      height,
       caption: caption.trim() || null,
     })
     .select("id")
