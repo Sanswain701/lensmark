@@ -126,8 +126,8 @@ function PhotoCard({ photo }: { photo: Photo }) {
             alt={photo.caption ?? "Untitled"}
             loading="lazy"
             decoding="async"
-            onLoad={(e) => e.currentTarget.classList.remove("opacity-0", "blur-md")}
-            className="w-full opacity-0 blur-md transition-[opacity,filter,transform] duration-[900ms] ease-[var(--ease-luxury)] group-hover:scale-[1.015]"
+            onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
+            className="w-full opacity-0 transition-[opacity,transform] duration-[900ms] ease-[var(--ease-luxury)] group-hover:scale-[1.015]"
           />
         </div>
         <div className="flex items-center justify-between px-4 py-3.5">
