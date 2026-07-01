@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Camera, Upload as UploadIcon } from "lucide-react";
 import { processImage } from "@/lib/image-pipeline";
+import { SourceSelect } from "@/components/source-select";
 
 export const Route = createFileRoute("/_authenticated/upload")({
 head: () => ({ meta: [{ title: "Upload · LensMark" }] }),
@@ -24,6 +25,7 @@ const [file, setFile] = useState<File | null>(null);
 const [preview, setPreview] = useState<string | null>(null);
 const [caption, setCaption] = useState("");
 const [busy, setBusy] = useState(false);
+const [sourceOpen, setSourceOpen] = useState(false);
 
 const onFile = (f: File | null) => {
 if (!f) return;
@@ -185,17 +187,11 @@ return (
       onSubmit={submit}
       className="mt-10 space-y-6"
     >
-      <label className="block">
-        <input
-          type="file"
-          accept={ALLOWED.join(",")}
-          className="sr-only"
-          onChange={(e) =>
-            onFile(e.target.files?.[0] ?? null)
-          }
-          capture="environment"
-        />
-
+      <button
+        type="button"
+        onClick={() => setSourceOpen(true)}
+        className="block w-full text-left"
+      >
         <div className="grid aspect-[4/3] cursor-pointer place-items-center overflow-hidden rounded-xl border-2 border-dashed border-border bg-card/40 transition-colors hover:border-foreground/30">
           {preview ? (
             <img
@@ -211,16 +207,16 @@ return (
               />
 
               <p className="mt-3 text-sm">
-                Tap to choose or capture
+                Choose source
               </p>
 
               <p className="text-xs text-muted-foreground">
-                JPG, PNG, WebP, AVIF · up to 12MB
+                Gallery or camera · JPG, PNG, WebP, AVIF · up to 12MB
               </p>
             </div>
           )}
         </div>
-      </label>
+      </button>
 
       <div className="space-y-1.5">
         <Label htmlFor="caption">
@@ -271,6 +267,15 @@ return (
       </div>
     </form>
   </main>
+
+  <SourceSelect
+    open={sourceOpen}
+    onClose={() => setSourceOpen(false)}
+    onPick={(f) => {
+      setSourceOpen(false);
+      onFile(f);
+    }}
+  />
 </div>
 
 );
