@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,12 +25,17 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     if (mode === "forgot") {
       const parsed = z.string().email().safeParse(email.trim());
-      if (!parsed.success) return toast.error("Enter a valid email");
+      if (!parsed.success) {
+        setErrors({ email: "Enter a valid email" });
+        return toast.error("Enter a valid email");
+      }
       setBusy(true);
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${window.location.origin}/reset-password`,
@@ -41,7 +47,11 @@ function AuthPage() {
       return;
     }
     const parsed = schema.safeParse({ email, password });
-    if (!parsed.success) return toast.error(parsed.error.errors[0].message);
+    if (!parsed.success) {
+      const field = parsed.error.errors[0].path[0] as "email" | "password";
+      setErrors({ [field]: parsed.error.errors[0].message });
+      return toast.error(parsed.error.errors[0].message);
+    }
     setBusy(true);
     if (mode === "signup") {
       const { error } = await supabase.auth.signUp({
@@ -66,15 +76,20 @@ function AuthPage() {
 
   const google = async () => {
     setBusy(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
     });
-    if (error) {
+    if (result.error) {
       setBusy(false);
-      return toast.error(error.message);
+      return toast.error(result.error.message ?? "Sign-in failed.");
     }
-    // Supabase redirects the browser to Google; nothing else to do here.
+    if (result.redirected) {
+      // Browser will navigate to Google.
+      return;
+    }
+    // Popup flow completed; session set.
+    setBusy(false);
+    navigate({ to: "/" });
   };
 
   return (
@@ -119,7 +134,12 @@ function AuthPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                aria-invalid={errors.email ? true : undefined}
+                aria-describedby={errors.email ? "email-error" : undefined}
               />
+              {errors.email && (
+                <p id="email-error" className="text-xs text-destructive">{errors.email}</p>
+              )}
             </div>
             {mode !== "forgot" && (
               <div className="space-y-1.5">
@@ -140,7 +160,12 @@ function AuthPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
+                  aria-invalid={errors.password ? true : undefined}
+                  aria-describedby={errors.password ? "password-error" : undefined}
                 />
+                {errors.password && (
+                  <p id="password-error" className="text-xs text-destructive">{errors.password}</p>
+                )}
               </div>
             )}
             <Button type="submit" className="w-full" disabled={busy}>
