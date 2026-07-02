@@ -25,7 +25,7 @@ const THUMB_MAX = 400;
 // Anything beyond this is downsampled by the browser during decode.
 const DECODE_MAX_EDGE = 4096;
 
-async function decode(file: File): Promise<ImageBitmap> {
+async function decode(file: File): Promise<{ bitmap: ImageBitmap; srcW: number; srcH: number }> {
   // Read intrinsic dimensions cheaply via HTMLImageElement (no pixel buffer
   // is allocated for the raw image at full resolution), then decode into a
   // bounded ImageBitmap. This protects low-RAM Android devices from OOM on
@@ -42,12 +42,13 @@ async function decode(file: File): Promise<ImageBitmap> {
     const scale = longest > DECODE_MAX_EDGE ? DECODE_MAX_EDGE / longest : 1;
     const rw = Math.max(1, Math.round(dims.w * scale));
     const rh = Math.max(1, Math.round(dims.h * scale));
-    return await createImageBitmap(file, {
+    const bitmap = await createImageBitmap(file, {
       imageOrientation: "from-image",
       resizeWidth: rw,
       resizeHeight: rh,
       resizeQuality: "high",
     });
+    return { bitmap, srcW: dims.w, srcH: dims.h };
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -109,7 +110,7 @@ async function buildVariant(
 }
 
 export async function processImage(file: File): Promise<ProcessedSet> {
-  const bitmap = await decode(file);
+  const { bitmap, srcW, srcH } = await decode(file);
   try {
     // No tonal/color processing. Preserve the original look exactly;
     // only downsample and re-encode for web delivery. The full-quality
@@ -119,8 +120,8 @@ export async function processImage(file: File): Promise<ProcessedSet> {
     return {
       medium,
       thumb,
-      sourceWidth: bitmap.width,
-      sourceHeight: bitmap.height,
+      sourceWidth: srcW,
+      sourceHeight: srcH,
     };
   } finally {
     bitmap.close?.();
