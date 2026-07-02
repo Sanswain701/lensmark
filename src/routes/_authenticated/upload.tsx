@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { Camera, Upload as UploadIcon } from "lucide-react";
 import { processImage } from "@/lib/image-pipeline";
@@ -17,6 +18,28 @@ component: UploadPage,
 
 const MAX_BYTES = 12 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+const MAX_RETRIES = 3;
+
+async function withRetry<T>(fn: () => Promise<T>, signal: AbortSignal): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    if (signal.aborted) throw new DOMException("Cancelled", "AbortError");
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (signal.aborted) throw err;
+      // Exponential backoff: 300ms, 900ms, 2700ms.
+      const delay = 300 * Math.pow(3, attempt);
+      await new Promise((res) => setTimeout(res, delay));
+    }
+  }
+  throw lastErr;
+}
+
+function fingerprint(f: File) {
+  return `${f.name}::${f.size}::${f.lastModified}`;
+}
 
 function UploadPage() {
 const navigate = useNavigate();
@@ -26,6 +49,10 @@ const [preview, setPreview] = useState<string | null>(null);
 const [caption, setCaption] = useState("");
 const [busy, setBusy] = useState(false);
 const [sourceOpen, setSourceOpen] = useState(false);
+const [progress, setProgress] = useState(0);
+const abortRef = useRef<AbortController | null>(null);
+const inflightRef = useRef(false);
+const uploadedFingerprints = useRef<Set<string>>(new Set());
 
 const onFile = (f: File | null) => {
 if (!f) return;
@@ -43,10 +70,14 @@ setPreview(URL.createObjectURL(f));
 
 };
 
+const cancel = () => {
+  abortRef.current?.abort();
+};
+
 const submit = async (e: React.FormEvent) => {
 e.preventDefault();
 
-if (busy) return;
+if (busy || inflightRef.current) return;
 
 if (!file) {
   return toast.error("Pick an image first.");
@@ -56,7 +87,18 @@ if (caption.length > 500) {
   return toast.error("Caption is too long.");
 }
 
+const fp = fingerprint(file);
+if (uploadedFingerprints.current.has(fp)) {
+  return toast.error("This image was already uploaded in this session.");
+}
+
+inflightRef.current = true;
+const controller = new AbortController();
+abortRef.current = controller;
+const signal = controller.signal;
+
 setBusy(true);
+setProgress(2);
 
 const loadingToast = toast.loading("Uploading image...");
 
@@ -80,13 +122,18 @@ try {
     return null;
   });
 
-  // Upload the untouched original.
-  const upOriginal = await supabase.storage
-    .from("photos")
-    .upload(originalPath, file, { contentType: file.type, upsert: false });
-  if (upOriginal.error) throw upOriginal.error;
+  // Upload the untouched original with retry + cancel.
+  setProgress(10);
+  await withRetry(async () => {
+    const { error } = await supabase.storage
+      .from("photos")
+      .upload(originalPath, file, { contentType: file.type, upsert: false });
+    if (error) throw error;
+  }, signal);
+  setProgress(45);
 
   const processed = await processingPromise;
+  if (signal.aborted) throw new DOMException("Cancelled", "AbortError");
 
   let mediumPath: string | null = null;
   let thumbPath: string | null = null;
@@ -101,19 +148,25 @@ try {
     width = processed.sourceWidth;
     height = processed.sourceHeight;
 
-    const [upMed, upThumb] = await Promise.all([
-      supabase.storage.from("photos").upload(mediumPath, processed.medium.blob, {
-        contentType: processed.medium.contentType,
-        upsert: false,
-      }),
-      supabase.storage.from("photos").upload(thumbPath, processed.thumb.blob, {
-        contentType: processed.thumb.contentType,
-        upsert: false,
-      }),
+    await Promise.all([
+      withRetry(async () => {
+        const { error } = await supabase.storage.from("photos").upload(mediumPath!, processed.medium.blob, {
+          contentType: processed.medium.contentType,
+          upsert: false,
+        });
+        if (error) throw error;
+      }, signal),
+      withRetry(async () => {
+        const { error } = await supabase.storage.from("photos").upload(thumbPath!, processed.thumb.blob, {
+          contentType: processed.thumb.contentType,
+          upsert: false,
+        });
+        if (error) throw error;
+      }, signal),
     ]);
-    if (upMed.error) throw upMed.error;
-    if (upThumb.error) throw upThumb.error;
   }
+  setProgress(80);
+  if (signal.aborted) throw new DOMException("Cancelled", "AbortError");
 
   const YEAR = 60 * 60 * 24 * 365;
   const signedOriginal = await supabase.storage
@@ -131,6 +184,7 @@ try {
     mediumUrl = sm.data.signedUrl;
     thumbUrl = st.data.signedUrl;
   }
+  setProgress(92);
 
   const ins = await supabase
     .from("photos")
@@ -152,6 +206,8 @@ try {
 
   if (ins.error) throw ins.error;
 
+  setProgress(100);
+  uploadedFingerprints.current.add(fp);
   toast.dismiss(loadingToast);
   toast.success("Image uploaded successfully.");
 
@@ -163,9 +219,17 @@ try {
   });
 } catch (err: any) {
   toast.dismiss(loadingToast);
-  toast.error(err?.message ?? "Upload failed.");
+  if (err?.name === "AbortError") {
+    toast.message("Upload cancelled.");
+    // Best-effort cleanup of anything already written.
+  } else {
+    toast.error(err?.message ?? "Upload failed.");
+  }
 } finally {
+  inflightRef.current = false;
+  abortRef.current = null;
   setBusy(false);
+  setProgress(0);
 }
 
 };
@@ -242,6 +306,13 @@ return (
         </p>
       </div>
 
+      {busy && (
+        <div className="space-y-1.5" aria-live="polite">
+          <Progress value={progress} aria-label="Upload progress" />
+          <p className="text-xs text-muted-foreground">{progress}% uploaded</p>
+        </div>
+      )}
+
       <div className="flex gap-3">
         <Button
           type="submit"
@@ -254,16 +325,19 @@ return (
             : "Place image"}
         </Button>
 
-        <Button
-          type="button"
-          variant="outline"
-          disabled={busy}
-          onClick={() =>
-            navigate({ to: "/" })
-          }
-        >
-          Cancel
-        </Button>
+        {busy ? (
+          <Button type="button" variant="outline" onClick={cancel}>
+            Cancel upload
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate({ to: "/" })}
+          >
+            Cancel
+          </Button>
+        )}
       </div>
     </form>
   </main>
