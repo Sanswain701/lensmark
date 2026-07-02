@@ -21,10 +21,26 @@ export type ProcessedSet = {
 
 const MEDIUM_MAX = 2000;
 const THUMB_MAX = 400;
+// Cap decode size to protect low-RAM Android devices from OOM on 48MP+ shots.
+// Anything beyond this is downsampled by the browser during decode.
+const DECODE_MAX_EDGE = 4096;
 
 async function decode(file: File): Promise<ImageBitmap> {
+  // Two-pass: read intrinsic size cheaply, then bounded-decode.
   // imageOrientation "from-image" bakes EXIF rotation into the bitmap.
-  return await createImageBitmap(file, { imageOrientation: "from-image" });
+  const probe = await createImageBitmap(file, { imageOrientation: "from-image" });
+  const longest = Math.max(probe.width, probe.height);
+  if (longest <= DECODE_MAX_EDGE) return probe;
+  const scale = DECODE_MAX_EDGE / longest;
+  const rw = Math.round(probe.width * scale);
+  const rh = Math.round(probe.height * scale);
+  probe.close?.();
+  return await createImageBitmap(file, {
+    imageOrientation: "from-image",
+    resizeWidth: rw,
+    resizeHeight: rh,
+    resizeQuality: "high",
+  });
 }
 
 function targetSize(srcW: number, srcH: number, maxEdge: number) {
