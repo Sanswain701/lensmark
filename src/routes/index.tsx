@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
-import { Camera, Sparkles, Eye, Heart } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { Camera, Sparkles, Eye } from "lucide-react";
+import { PhotoCard } from "@/components/photo-card";
+import { PhotoGrid } from "@/components/photo-grid";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,6 +34,7 @@ type Photo = {
 function Home() {
   const { data: photos, isLoading } = useQuery({
     queryKey: ["feed"],
+    staleTime: 30_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("photos")
@@ -46,7 +49,7 @@ function Home() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-5 pb-24">
+      <main id="main" className="mx-auto max-w-6xl px-5 pb-28 md:pb-24">
         <section className="py-16 md:py-24">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold-soft px-3.5 py-1.5 text-[0.6875rem] uppercase tracking-[0.22em] text-gold">
@@ -83,11 +86,11 @@ function Home() {
           ) : !photos || photos.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="columns-1 gap-4 sm:columns-2 sm:gap-6 lg:columns-3 [column-fill:_balance]">
-              {photos.map((p) => (
-                <PhotoCard key={p.id} photo={p} />
+            <PhotoGrid>
+              {photos.map((p, i) => (
+                <PhotoCard key={p.id} photo={p as any} priority={i < 3} />
               ))}
-            </div>
+            </PhotoGrid>
           )}
         </section>
       </main>
@@ -102,49 +105,7 @@ function Home() {
           @sanfrfr._
         </a>
       </footer>
-    </div>
-  );
-}
-
-function PhotoCard({ photo }: { photo: Photo }) {
-  const display = photo.medium_url || photo.image_url;
-  const srcSet = photo.thumb_url && photo.medium_url
-    ? `${photo.thumb_url} 400w, ${photo.medium_url} 2000w`
-    : undefined;
-  return (
-    <div className="mb-5 break-inside-avoid sm:mb-7">
-      <Link
-        to="/p/$id"
-        params={{ id: photo.id }}
-        className="group block overflow-hidden rounded-xl bg-card shadow-[var(--shadow-soft)] ring-1 ring-foreground/[0.06] transition-[box-shadow,transform] duration-500 ease-[var(--ease-luxury)] hover:shadow-[var(--shadow-elegant)] hover:ring-foreground/[0.12]"
-      >
-        <div className="relative overflow-hidden bg-[image:var(--gradient-surface)]">
-          <img
-            src={display}
-            srcSet={srcSet}
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            alt={photo.caption ?? "Untitled"}
-            loading="lazy"
-            decoding="async"
-            onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
-            className="w-full opacity-0 transition-[opacity,transform] duration-[900ms] ease-[var(--ease-luxury)] group-hover:scale-[1.015]"
-          />
-        </div>
-        <div className="flex items-center justify-between px-4 py-3.5">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">
-              {photo.profiles?.display_name ?? photo.profiles?.username ?? "Unknown"}
-            </p>
-            <p className="meta truncate text-xs text-muted-foreground">
-              @{photo.profiles?.username ?? "anon"} · {formatDistanceToNow(new Date(photo.created_at), { addSuffix: true })}
-            </p>
-          </div>
-          <div className="meta flex items-center gap-1 text-xs text-muted-foreground">
-            <Heart className="h-3.5 w-3.5 text-gold/80" strokeWidth={1.5} />
-            {photo.appreciations_count}
-          </div>
-        </div>
-      </Link>
+      <MobileBottomNav />
     </div>
   );
 }
