@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { Camera, Compass, Plus, LogOut, User as UserIcon, Sun, Moon } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,30 +10,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "@/components/theme-provider";
+import { useMyProfile } from "@/hooks/use-profile";
 
 export function SiteHeader() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string | null>(null);
+  const { data: profile } = useMyProfile(user?.id);
+  const username = profile?.username ?? null;
   const { theme, resolvedTheme, setTheme } = useTheme();
-
-  useEffect(() => {
-    if (!user) {
-      setUsername(null);
-      return;
-    }
-    supabase
-      .from("profiles")
-      .select("username")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setUsername(data?.username ?? null));
-  }, [user]);
+  const queryClient = useQueryClient();
+  const router = useRouter();
 
   const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
+    router.invalidate();
     navigate({ to: "/" });
   };
 
@@ -48,6 +42,7 @@ export function SiteHeader() {
           <Link
             to="/"
             activeOptions={{ exact: true }}
+            activeProps={{ "aria-current": "page" } as any}
             className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors duration-300 ease-[var(--ease-luxury)] hover:text-foreground data-[status=active]:text-foreground"
           >
             <span className="inline-flex items-center gap-2"><Compass className="h-4 w-4" strokeWidth={1.5} /> Discover</span>
@@ -79,7 +74,10 @@ export function SiteHeader() {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-              <button className="ml-1 grid h-9 w-9 place-items-center rounded-full border border-foreground/15 bg-secondary text-sm font-medium ring-1 ring-inset ring-foreground/[0.04] transition-colors hover:border-gold/60">
+              <button
+                aria-label="Account menu"
+                className="ml-1 grid h-9 w-9 place-items-center rounded-full border border-foreground/15 bg-secondary text-sm font-medium ring-1 ring-inset ring-foreground/[0.04] transition-colors hover:border-gold/60"
+              >
                     {(username ?? user.email ?? "?").slice(0, 1).toUpperCase()}
                   </button>
                 </DropdownMenuTrigger>

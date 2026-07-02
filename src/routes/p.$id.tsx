@@ -9,10 +9,30 @@ import { Heart, Trash2, MessageCircle, FolderPlus } from "lucide-react";
 import { AddToCollectionDialog } from "@/components/add-to-collection-dialog";
 import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 
 export const Route = createFileRoute("/p/$id")({
   head: () => ({ meta: [{ title: `Photograph · LensMark` }] }),
   component: PhotoPage,
+  errorComponent: ({ error, reset }) => (
+    <div className="min-h-screen">
+      <SiteHeader />
+      <main id="main" className="mx-auto max-w-md p-10 text-center">
+        <p className="font-display text-2xl">We couldn't load this photograph.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <button onClick={reset} className="mt-4 rounded-md border border-border px-4 py-2 text-sm">Try again</button>
+      </main>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="min-h-screen">
+      <SiteHeader />
+      <main id="main" className="mx-auto max-w-md p-10 text-center">
+        <p className="font-display text-2xl">Photograph not found.</p>
+        <Link to="/" className="mt-4 inline-block text-sm text-muted-foreground hover:text-foreground">Back home</Link>
+      </main>
+    </div>
+  ),
 });
 
 function PhotoPage() {
@@ -123,7 +143,7 @@ function PhotoPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-5 py-8">
+      <main id="main" className="mx-auto max-w-6xl px-5 py-8 pb-28 md:pb-8">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="rounded-2xl bg-black shadow-[var(--shadow-elegant)] ring-1 ring-foreground/10">
             <img src={photo.image_url} alt={photo.caption ?? ""} className="mx-auto max-h-[82vh] w-auto rounded-2xl object-contain" />
@@ -186,6 +206,7 @@ function PhotoPage() {
       {me && me === photo.owner_id && (
         <AddToCollectionDialog open={addOpen} onClose={() => setAddOpen(false)} photoId={photo.id} ownerId={me} />
       )}
+      <MobileBottomNav />
     </div>
   );
 }

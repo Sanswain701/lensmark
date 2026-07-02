@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SocialIcons } from "@/components/social-icons";
 import { Shield, Calendar, Image as ImageIcon, Layers } from "lucide-react";
 import { format } from "date-fns";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => ({
@@ -94,7 +95,7 @@ function ProfilePage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="pb-16">
+      <main id="main" className="pb-24 md:pb-16">
         {/* Cover band */}
         <div className="relative h-52 w-full overflow-hidden bg-[image:var(--gradient-surface)] sm:h-72">
           {profile.cover_url ? (
@@ -206,6 +207,7 @@ function ProfilePage() {
         </section>
         </div>
       </main>
+      <MobileBottomNav />
     </div>
   );
 }

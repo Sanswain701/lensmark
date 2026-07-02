@@ -12,10 +12,30 @@ import { ImageCropper } from "@/components/image-cropper";
 import { uploadAvatarBlob, fileToDataUrl } from "@/lib/avatars";
 import { Trash2, Pencil, X, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 
 export const Route = createFileRoute("/c/$id")({
   head: () => ({ meta: [{ title: "Collection · LensMark" }] }),
   component: CollectionPage,
+  errorComponent: ({ error, reset }) => (
+    <div className="min-h-screen">
+      <SiteHeader />
+      <main id="main" className="mx-auto max-w-md p-10 text-center">
+        <p className="font-display text-2xl">We couldn't load this collection.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <button onClick={reset} className="mt-4 rounded-md border border-border px-4 py-2 text-sm">Try again</button>
+      </main>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="min-h-screen">
+      <SiteHeader />
+      <main id="main" className="mx-auto max-w-md p-10 text-center">
+        <p className="font-display text-2xl">Collection not found.</p>
+        <Link to="/" className="mt-4 inline-block text-sm text-muted-foreground hover:text-foreground">Back home</Link>
+      </main>
+    </div>
+  ),
 });
 
 function CollectionPage() {
@@ -135,7 +155,7 @@ function CollectionPage() {
           <div className="absolute inset-x-0 bottom-0 h-px hairline-gold" />
         </div>
       )}
-      <main className="mx-auto max-w-5xl px-5 py-12">
+      <main id="main" className="mx-auto max-w-5xl px-5 py-12 pb-28 md:pb-12">
         <header className="flex items-end justify-between gap-6">
           <div>
             <p className="eyebrow text-gold">Collection</p>
@@ -227,6 +247,7 @@ function CollectionPage() {
         onClose={() => setCrop(null)}
         onCropped={onCovered}
       />
+      <MobileBottomNav />
     </div>
   );
 }

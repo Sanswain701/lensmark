@@ -1,95 +1,71 @@
+## Phase 0 — LensMark Foundation Sprint
 
-# Premium image processing pipeline for LensMark
+Strengthen the existing app without touching visual design, typography, spacing, colors, or feature surface.
 
-Goal: photos look like Sony Alpha JPEG / iPhone Smart HDR — controlled highlights, rich detail, natural color. Originals are preserved untouched and shown on the detail page; optimized WebP variants power every feed/grid surface.
+---
 
-## Architecture choice
+### 1. Dead code & duplication
 
-All processing happens **client-side in the browser** before upload, using `<canvas>` + `createImageBitmap`:
+- **Fix `src/lib/photo-urls.ts`**: make `displayUrl(p, role)` return `thumb_url ?? medium_url ?? image_url` for `"thumb"`, `medium_url ?? image_url` for `"medium"`, and `image_url` for `"original"`. Implement `buildSrcSet` returning a real `thumb 400w, medium 2000w` string when available.
+- **Extract `src/components/photo-card.tsx`** (single tile: image + optional caption/meta overlay used by feed/profile/collection).
+- **Extract `src/components/photo-grid.tsx`** (masonry/grid wrapper reused by `/`, `/u/$username`, `/c/$id`).
+- Update `src/routes/index.tsx`, `src/routes/u.$username.tsx`, `src/routes/c.$id.tsx` to consume the shared components and helper — visual output identical.
 
-- The Worker SSR runtime cannot run `sharp` / native image libs, and a pure-JS server pipeline would be slow and double the upload bandwidth.
-- Browsers already decode the file for preview, so we reuse that decode.
-- `imageOrientation: "from-image"` on `createImageBitmap` preserves EXIF orientation natively (no exif-js dependency).
-- Canvas `toBlob("image/webp", q)` is supported in all current browsers we target (PWA).
+### 2. Upload stability (`src/lib/image-pipeline.ts`, `src/routes/_authenticated/upload.tsx`)
 
-A small graceful fallback path: if WebP encoding fails (very old browser), we fall back to JPEG q=0.9 for the optimized variants — the original is always uploaded as-is regardless.
+- Bounded decode: pass `resizeWidth`/`resizeHeight` to `createImageBitmap` capped at ~4096px longest edge before canvas work (saves 5–10× memory on low-RAM Android).
+- Upload progress: switch storage upload to `XMLHttpRequest`-based signed upload (Supabase `createSignedUploadUrl` + `uploadToSignedUrl`) so we can wire `onprogress` and `AbortSignal`.
+- Retry: exponential backoff (3 attempts) on network-class errors per part.
+- Cancel: `AbortController` wired to a Cancel button that replaces the disabled state during upload.
+- Duplicate-submit guard: ref-based `inFlight` + disable submit while a photo is in flight; also compute a quick content hash (file size + name + lastModified) and refuse re-submitting the same source in the same session.
+- Preview UI: minimal progress bar under the dropzone (uses existing `Progress` primitive, no design change).
 
-## Storage layout (no schema migration needed beyond two nullable columns)
+### 3. Routing robustness
 
-Bucket `photos` (private, already exists). For each upload:
+- Add `defaultErrorComponent` + `defaultNotFoundComponent` to `getRouter` in `src/router.tsx`.
+- Add `notFoundComponent` on `__root.tsx`.
+- Add `errorComponent` + `notFoundComponent` to routes with loaders: `p.$id.tsx`, `u.$username.tsx`, `c.$id.tsx`, `index.tsx`. Each renders a small in-shell message using existing typography — no new visual language.
 
-```
-{uid}/{photoId}/original.{ext}   ← untouched bytes from the user's file
-{uid}/{photoId}/medium.webp      ← max 2000px long edge, WebP q=0.90
-{uid}/{photoId}/thumb.webp       ← 400px long edge,      WebP q=0.85
-```
+### 4. Authentication — Google Sign-In
 
-Signed URLs (1 year) are generated for all three and stored on the row.
+- Call `supabase--configure_social_auth` with `providers: ["google"]` (keep email enabled).
+- Add a "Continue with Google" button to `src/routes/auth.tsx` (sign-in and sign-up tabs) using existing `Button` + `social-icons`. Uses `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })`.
+- Preserve email flow, onboarding, and username auto-provisioning (`handle_new_user` trigger already handles OAuth users).
 
-### `photos` table additions (one migration)
+### 5. Performance
 
-```sql
-ALTER TABLE public.photos
-  ADD COLUMN medium_url   text,
-  ADD COLUMN thumb_url    text,
-  ADD COLUMN medium_path  text,
-  ADD COLUMN thumb_path   text,
-  ADD COLUMN width        int,
-  ADD COLUMN height       int;
-```
+- New `src/hooks/use-profile.ts` — `useQuery(['profile', userId])` for the current user's profile (username, avatar). Replace ad-hoc `.then()` in `site-header.tsx`.
+- `<link rel="preconnect">` for the Supabase storage origin in `__root.tsx` head links.
+- `PhotoCard`: `loading="lazy"`, `decoding="async"`, `sizes` attribute + real `srcset` from `buildSrcSet`. First feed row gets `fetchpriority="high"` and `loading="eager"`.
+- `defaultPreloadStaleTime` already `0` — leave as-is; add `staleTime: 30_000` on the feed query to prevent thrash.
 
-`image_url` / `storage_path` keep their existing meaning = **original**. Old rows without the new columns fall back to `image_url` in the UI, so nothing breaks.
+### 6. Accessibility
 
-## Processing pipeline (`src/lib/image-pipeline.ts`, new)
+- Skip-to-content anchor in `__root.tsx` (`<a href="#main">`), `<main id="main">` in routes.
+- `aria-current="page"` on active nav `Link`s in `site-header.tsx` (via `activeProps`).
+- `aria-invalid` + `aria-describedby` on auth inputs when the field has an error.
+- Focus-visible ring already tokenised — ensure `PhotoCard` link has visible focus ring.
+- Icon-only buttons already have `aria-label`; audit and add where missing (theme toggle, avatar menu trigger).
 
-Pure client module, no new deps. Pipeline per variant:
+### 7. Responsive — mobile-only bottom nav
 
-1. Decode source via `createImageBitmap(file, { imageOrientation: "from-image" })`. EXIF rotation baked in, never upscale (`Math.min(1, target/longEdge)`).
-2. Draw to an offscreen canvas at target size, `imageSmoothingQuality = "high"`.
-3. Single-pass pixel adjustment over `ImageData` applying, in this order:
-   - **Auto-exposure**: compute luminance histogram, find 0.5% / 99.5% percentiles, gentle linear stretch capped at ±8% so well-exposed images barely change.
-   - **Highlight recovery**: for pixels with L > 0.75, compress with `L' = 0.75 + (L-0.75) * 0.72` (≈28% rolloff). Prevents blown whites, preserves cloud/sky gradient.
-   - **Shadow lift**: for L < 0.25, `L' = L + (0.25-L) * 0.18`. Mild.
-   - **Contrast +10%** around mid-gray: `c = (c-0.5) * 1.10 + 0.5`, applied in linear-ish space to avoid crushing.
-   - **Vibrance +5% / Saturation +2%**: HSL-style boost that scales inversely with current saturation (vibrance), then a flat 2% sat. Skin-tone guard: hues in [10°, 50°] get 60% of the boost so faces stay natural.
-   - **Mild sharpen**: 3×3 unsharp mask (amount 0.35, radius 1px) applied only to the luminance channel.
-4. Encode: `canvas.toBlob("image/webp", q)` (0.90 medium / 0.85 thumb). JPEG fallback if `null`.
+- New `src/components/mobile-bottom-nav.tsx`: fixed bottom bar (`md:hidden`) with Discover / Upload / Profile. Uses existing tokens and icons; adds `pb-[env(safe-area-inset-bottom)]`.
+- Add bottom padding to `<main>` on mobile only (`pb-20 md:pb-0`) so content isn't hidden. Desktop layout unchanged.
 
-Performance: medium variant ≈ 80–200 ms on a mid-range phone for a 12 MP photo. Thumb is fast. We run them sequentially after the upload of the original has *started* (parallel network + CPU), with a toast that reflects progress: "Uploading… Optimizing… Done."
+---
 
-## Upload flow changes (`src/routes/_authenticated/upload.tsx`)
+### Technical details
 
-Replace the single-upload block with:
+- Files created: `src/components/photo-card.tsx`, `src/components/photo-grid.tsx`, `src/components/mobile-bottom-nav.tsx`, `src/hooks/use-profile.ts`.
+- Files modified: `src/lib/photo-urls.ts`, `src/lib/image-pipeline.ts`, `src/routes/_authenticated/upload.tsx`, `src/routes/index.tsx`, `src/routes/u.$username.tsx`, `src/routes/c.$id.tsx`, `src/routes/p.$id.tsx`, `src/routes/__root.tsx`, `src/routes/auth.tsx`, `src/router.tsx`, `src/components/site-header.tsx`.
+- Backend: `supabase--configure_social_auth` for Google. No schema/migration changes.
+- No changes to `image-pipeline` tonal processing (still resize + WebP encode only).
+- No changes to design tokens, fonts, or colors.
 
-```
-1. const photoId = crypto.randomUUID()
-2. parallel:
-     a. supabase.storage.upload(`${uid}/${photoId}/original.${ext}`, file)   // untouched
-     b. const { medium, thumb, width, height } = await processImage(file)
-        await upload medium.webp + thumb.webp
-3. createSignedUrl x3 (1 year)
-4. insert photos row with image_url=original, medium_url, thumb_url, *_path, width, height
-```
+### Verification (before handoff)
 
-Validation/limits unchanged (12 MB, JPG/PNG/WebP/AVIF). HEIC stays out of scope (already not in the allow-list).
-
-## Display rules
-
-- **Feed / profile / collections / discovery** → use `medium_url` (with `thumb_url` as the `ProgressiveImage` placeholder for instant paint), srcset `thumb_url 400w, medium_url 2000w`, `sizes` per grid breakpoint, `loading="lazy"`, `decoding="async"`.
-- **Photo detail `/p/$id`** → use `image_url` (original), preloaded via route `head().links` `rel="preload" as="image"`.
-- **Photo card hover/zoom** → still medium; only the detail page pays the original-size bandwidth.
-
-`ProgressiveImage` gets two new optional props (`srcSet`, `sizes`, `placeholderSrc`) — existing callers keep working.
-
-## Backward compatibility
-
-A tiny helper `displayUrl(photo, "medium" | "thumb" | "original")` returns the right URL, falling back to `image_url` when the optimized columns are null (old rows). No backfill required; old photos simply render from the original until re-uploaded.
-
-## Files touched
-
-- **New**: `src/lib/image-pipeline.ts`, `supabase/migrations/<ts>_photos_variants.sql`
-- **Edit**: `src/routes/_authenticated/upload.tsx` (pipeline + multi-upload), `src/components/progressive-image.tsx` (srcset/sizes/placeholder props), `src/routes/index.tsx` / `u.$username.tsx` / `c.$id.tsx` (use medium + srcset), `src/routes/p.$id.tsx` (preload original, keep using `image_url`).
-
-## Out of scope
-
-No redesign, no layout changes, no new routes, no new deps, no server-side processing, no HEIC support, no re-processing of historical photos.
+1. Self-review diff.
+2. Build passes (auto).
+3. Playwright smoke: `/`, `/auth`, `/p/$id`, `/u/$username`, upload flow with progress + cancel; 360×812 mobile viewport screenshot to confirm identical visuals + bottom nav.
+4. Accessibility spot-check: skip link visible on Tab, `aria-current` on active nav, focus rings on grid tiles.
+5. Report: files modified with rationale, perf/a11y wins, remaining debt, risks. Stop and wait for approval before Phase 1.
