@@ -26,21 +26,31 @@ const THUMB_MAX = 400;
 const DECODE_MAX_EDGE = 4096;
 
 async function decode(file: File): Promise<ImageBitmap> {
-  // Two-pass: read intrinsic size cheaply, then bounded-decode.
-  // imageOrientation "from-image" bakes EXIF rotation into the bitmap.
-  const probe = await createImageBitmap(file, { imageOrientation: "from-image" });
-  const longest = Math.max(probe.width, probe.height);
-  if (longest <= DECODE_MAX_EDGE) return probe;
-  const scale = DECODE_MAX_EDGE / longest;
-  const rw = Math.round(probe.width * scale);
-  const rh = Math.round(probe.height * scale);
-  probe.close?.();
-  return await createImageBitmap(file, {
-    imageOrientation: "from-image",
-    resizeWidth: rw,
-    resizeHeight: rh,
-    resizeQuality: "high",
-  });
+  // Read intrinsic dimensions cheaply via HTMLImageElement (no pixel buffer
+  // is allocated for the raw image at full resolution), then decode into a
+  // bounded ImageBitmap. This protects low-RAM Android devices from OOM on
+  // very large phone camera JPEGs (48MP+).
+  const url = URL.createObjectURL(file);
+  try {
+    const dims = await new Promise<{ w: number; h: number }>((res, rej) => {
+      const img = new Image();
+      img.onload = () => res({ w: img.naturalWidth, h: img.naturalHeight });
+      img.onerror = () => rej(new Error("Could not read image dimensions."));
+      img.src = url;
+    });
+    const longest = Math.max(dims.w, dims.h);
+    const scale = longest > DECODE_MAX_EDGE ? DECODE_MAX_EDGE / longest : 1;
+    const rw = Math.max(1, Math.round(dims.w * scale));
+    const rh = Math.max(1, Math.round(dims.h * scale));
+    return await createImageBitmap(file, {
+      imageOrientation: "from-image",
+      resizeWidth: rw,
+      resizeHeight: rh,
+      resizeQuality: "high",
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 function targetSize(srcW: number, srcH: number, maxEdge: number) {
