@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-ro
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Heart, Trash2, MessageCircle, FolderPlus } from "lucide-react";
@@ -10,28 +9,21 @@ import { AddToCollectionDialog } from "@/components/add-to-collection-dialog";
 import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
+import { SiteHeader } from "@/components/site-header";
+import { StatusView, BackHomeLink, RetryButton } from "@/components/ui/status-view";
 
 export const Route = createFileRoute("/p/$id")({
   head: () => ({ meta: [{ title: `Photograph · LensMark` }] }),
   component: PhotoPage,
   errorComponent: ({ error, reset }) => (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <main id="main" className="mx-auto max-w-md p-10 text-center">
-        <p className="font-display text-2xl">We couldn't load this photograph.</p>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
-        <button onClick={reset} className="mt-4 rounded-md border border-border px-4 py-2 text-sm">Try again</button>
-      </main>
-    </div>
+    <StatusView
+      title="We couldn't load this photograph."
+      description={error.message}
+      action={<RetryButton onClick={reset} />}
+    />
   ),
   notFoundComponent: () => (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <main id="main" className="mx-auto max-w-md p-10 text-center">
-        <p className="font-display text-2xl">Photograph not found.</p>
-        <Link to="/" className="mt-4 inline-block text-sm text-muted-foreground hover:text-foreground">Back home</Link>
-      </main>
-    </div>
+    <StatusView title="Photograph not found." action={<BackHomeLink />} />
   ),
 });
 

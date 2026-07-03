@@ -6,6 +6,9 @@ import { Camera, Sparkles, Eye } from "lucide-react";
 import { PhotoCard } from "@/components/photo-card";
 import { PhotoGrid } from "@/components/photo-grid";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
+import { EmptyState as EmptyStateBlock } from "@/components/ui/empty-state";
+import { SectionHeader } from "@/components/ui/section-header";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -76,15 +79,17 @@ function Home() {
         </section>
 
         <section id="feed" className="border-t border-border/70 pt-14">
-          <div className="mb-8 flex items-baseline justify-between">
-            <h2 className="font-display text-2xl">Recent uploads</h2>
-            <span className="eyebrow">Chronological · No algorithm</span>
-          </div>
+          <SectionHeader
+            className="mb-8 items-baseline"
+            size="sm"
+            title="Recent uploads"
+            aside={<span className="eyebrow">Chronological · No algorithm</span>}
+          />
 
           {isLoading ? (
             <FeedSkeleton />
           ) : !photos || photos.length === 0 ? (
-            <EmptyState />
+            <EmptyFeed />
           ) : (
             <PhotoGrid>
               {photos.map((p, i) => (
@@ -125,17 +130,19 @@ function FeedSkeleton() {
   );
 }
 
-function EmptyState() {
+function EmptyFeed() {
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-[image:var(--gradient-surface)] p-16 text-center shadow-[var(--shadow-soft)]">
-      <Camera className="mx-auto h-8 w-8 text-gold" strokeWidth={1.25} />
-      <p className="font-display mt-4 text-2xl">A blank gallery, waiting.</p>
-      <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-        Be one of the first to share an image. Every photograph here was placed with intent.
-      </p>
-      <Link to="/auth" className="mt-6 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-        <Eye className="h-4 w-4" /> Join LensMark
-      </Link>
-    </div>
+    <EmptyStateBlock
+      icon={<Camera strokeWidth={1.25} />}
+      title="A blank gallery, waiting."
+      description="Be one of the first to share an image. Every photograph here was placed with intent."
+      action={
+        <Button asChild>
+          <Link to="/auth">
+            <Eye className="h-4 w-4" /> Join LensMark
+          </Link>
+        </Button>
+      }
+    />
   );
 }

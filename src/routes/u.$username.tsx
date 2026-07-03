@@ -1,11 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SiteHeader } from "@/components/site-header";
 import { SocialIcons } from "@/components/social-icons";
 import { Shield, Calendar, Image as ImageIcon, Layers } from "lucide-react";
 import { format } from "date-fns";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
+import { SiteHeader } from "@/components/site-header";
+import { StatusView, BackHomeLink } from "@/components/ui/status-view";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Stat } from "@/components/ui/stat";
+import { Display, Eyebrow, Meta } from "@/components/ui/typography";
 
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => ({
@@ -21,15 +25,7 @@ export const Route = createFileRoute("/u/$username")({
 });
 
 function ErrorView() {
-  return (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <main className="mx-auto max-w-3xl px-5 py-24 text-center">
-        <p className="font-display text-2xl">We couldn't find this photographer.</p>
-        <Link to="/" className="mt-4 inline-block text-sm text-muted-foreground hover:text-foreground">Back home</Link>
-      </main>
-    </div>
-  );
+  return <StatusView title="We couldn't find this photographer." action={<BackHomeLink />} />;
 }
 
 function ProfilePage() {
@@ -120,9 +116,9 @@ function ProfilePage() {
                   </div>
                 )}
               </div>
-              <h1 className="font-display mt-5 text-5xl tracking-tight">{profile.display_name ?? profile.username}</h1>
+              <Display as="h1" size="xl" className="mt-5">{profile.display_name ?? profile.username}</Display>
               <div className="mt-1 flex items-center gap-3">
-                <p className="meta text-sm text-muted-foreground">@{profile.username}</p>
+                <Meta className="text-sm text-muted-foreground">@{profile.username}</Meta>
                 <SocialIcons instagram={profile.instagram} twitter={profile.twitter} website={profile.website} />
               </div>
               {profile.bio && <p className="mt-5 max-w-xl whitespace-pre-line text-[15px] leading-[1.7] text-foreground/90">{profile.bio}</p>}
@@ -137,7 +133,7 @@ function ProfilePage() {
           {/* Featured collection band */}
           {featured && (
             <section className="mt-12">
-              <p className="eyebrow">Featured collection</p>
+              <Eyebrow>Featured collection</Eyebrow>
               <Link to="/c/$id" params={{ id: featured.id }} className="group mt-4 grid gap-5 overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/[0.06] shadow-[var(--shadow-elegant)] transition-shadow duration-500 ease-[var(--ease-luxury)] hover:shadow-[0_24px_60px_-24px_rgb(17_18_20_/_0.28)] md:grid-cols-[2fr_1fr]">
                 <div className="aspect-[16/9] overflow-hidden bg-[image:var(--gradient-surface)] md:aspect-auto md:h-full">
                   {(featured.cover_url || featured.photos?.image_url) ? (
@@ -147,9 +143,9 @@ function ProfilePage() {
                   )}
                 </div>
                 <div className="flex flex-col justify-center p-7">
-                  <h3 className="font-display text-3xl tracking-tight">{featured.name}</h3>
+                  <Display as="h3" size="md">{featured.name}</Display>
                   {featured.description && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{featured.description}</p>}
-                  <span className="eyebrow mt-5 transition-colors duration-300 group-hover:text-gold">View collection →</span>
+                  <Eyebrow className="mt-5 transition-colors duration-300 group-hover:text-gold">View collection →</Eyebrow>
                 </div>
               </Link>
             </section>
@@ -157,7 +153,7 @@ function ProfilePage() {
 
         {otherCollections.length > 0 && (
           <section className="mt-14">
-            <h2 className="font-display mb-5 text-3xl">Collections</h2>
+            <Display as="h2" size="md" className="mb-5">Collections</Display>
             <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
               {otherCollections.map((c) => (
                 <Link key={c.id} to="/c/$id" params={{ id: c.id }} className="group overflow-hidden rounded-xl bg-card ring-1 ring-foreground/[0.06] shadow-[var(--shadow-soft)] transition-shadow duration-500 ease-[var(--ease-luxury)] hover:shadow-[var(--shadow-elegant)]">
@@ -170,7 +166,7 @@ function ProfilePage() {
                   </div>
                   <div className="px-4 py-3">
                     <p className="truncate text-sm font-medium">{c.name}</p>
-                    {c.description && <p className="meta truncate text-xs text-muted-foreground">{c.description}</p>}
+                    {c.description && <Meta className="block truncate text-xs text-muted-foreground">{c.description}</Meta>}
                   </div>
                 </Link>
               ))}
@@ -179,14 +175,11 @@ function ProfilePage() {
         )}
 
         <section className="mt-14">
-          <h2 className="font-display mb-5 text-3xl">Photographs</h2>
+          <Display as="h2" size="md" className="mb-5">Photographs</Display>
           {photosQ.isLoading ? (
             <div className="h-40 animate-pulse rounded-lg bg-muted" />
           ) : !photosQ.data || photosQ.data.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-[image:var(--gradient-surface)] p-12 text-center">
-              <p className="font-display text-lg">A quiet archive, for now.</p>
-              <p className="mt-1 text-sm text-muted-foreground">No photographs yet.</p>
-            </div>
+            <EmptyState title="A quiet archive, for now." description="No photographs yet." />
           ) : (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {photosQ.data.map((p) => (
@@ -212,11 +205,4 @@ function ProfilePage() {
   );
 }
 
-function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border/70 bg-card p-3.5 shadow-[var(--shadow-soft)]">
-      <div className="flex items-center gap-1.5 eyebrow">{icon}{label}</div>
-      <div className="font-display mt-1 text-2xl">{value}</div>
-    </div>
-  );
-}
+// `Stat` moved to `@/components/ui/stat`.

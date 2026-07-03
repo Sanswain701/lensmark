@@ -13,28 +13,21 @@ import { uploadAvatarBlob, fileToDataUrl } from "@/lib/avatars";
 import { Trash2, Pencil, X, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
+import { StatusView, BackHomeLink, RetryButton } from "@/components/ui/status-view";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const Route = createFileRoute("/c/$id")({
   head: () => ({ meta: [{ title: "Collection · LensMark" }] }),
   component: CollectionPage,
   errorComponent: ({ error, reset }) => (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <main id="main" className="mx-auto max-w-md p-10 text-center">
-        <p className="font-display text-2xl">We couldn't load this collection.</p>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
-        <button onClick={reset} className="mt-4 rounded-md border border-border px-4 py-2 text-sm">Try again</button>
-      </main>
-    </div>
+    <StatusView
+      title="We couldn't load this collection."
+      description={error.message}
+      action={<RetryButton onClick={reset} />}
+    />
   ),
   notFoundComponent: () => (
-    <div className="min-h-screen">
-      <SiteHeader />
-      <main id="main" className="mx-auto max-w-md p-10 text-center">
-        <p className="font-display text-2xl">Collection not found.</p>
-        <Link to="/" className="mt-4 inline-block text-sm text-muted-foreground hover:text-foreground">Back home</Link>
-      </main>
-    </div>
+    <StatusView title="Collection not found." action={<BackHomeLink />} />
   ),
 });
 
@@ -201,10 +194,11 @@ function CollectionPage() {
             </div>
           ))}
           {photosQ.data?.length === 0 && (
-            <div className="rounded-lg border border-dashed border-border p-10 text-center">
-              <p className="font-display text-lg">An empty page, waiting.</p>
-              <p className="mt-1 text-sm text-muted-foreground">Open any photograph and tap “Add to collection”.</p>
-            </div>
+            <EmptyState
+              variant="quiet"
+              title="An empty page, waiting."
+              description="Open any photograph and tap “Add to collection”."
+            />
           )}
         </div>
       </main>
