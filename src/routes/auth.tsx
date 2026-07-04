@@ -48,9 +48,9 @@ function AuthPage() {
     }
     const parsed = schema.safeParse({ email, password });
     if (!parsed.success) {
-      const field = parsed.error.errors[0].path[0] as "email" | "password";
-      setErrors({ [field]: parsed.error.errors[0].message });
-      return toast.error(parsed.error.errors[0].message);
+      const field = parsed.error.issues[0].path[0] as "email" | "password";
+      setErrors({ [field]: parsed.error.issues[0].message });
+      return toast.error(parsed.error.issues[0].message);
     }
     setBusy(true);
     if (mode === "signup") {
