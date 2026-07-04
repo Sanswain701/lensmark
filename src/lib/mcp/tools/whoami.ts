@@ -16,7 +16,7 @@ export default defineTool({
     const { data, error } = await sb
       .from("profiles")
       .select("id, username, display_name, bio, trust_score, avatar_url, website, instagram, twitter")
-      .eq("id", ctx.getUserId())
+      .eq("id", ctx.getUserId()!)
       .maybeSingle();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {

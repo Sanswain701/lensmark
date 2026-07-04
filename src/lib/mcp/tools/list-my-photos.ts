@@ -18,7 +18,7 @@ export default defineTool({
     const { data, error } = await sb
       .from("photos")
       .select("id, caption, width, height, appreciations_count, image_url, medium_url, thumb_url, created_at")
-      .eq("owner_id", ctx.getUserId())
+      .eq("owner_id", ctx.getUserId()!)
       .order("created_at", { ascending: false })
       .limit(limit ?? 20);
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
