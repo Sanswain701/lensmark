@@ -95,7 +95,7 @@ function Settings() {
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = usernameSchema.safeParse(username);
-    if (!parsed.success) return toast.error(parsed.error.errors[0].message);
+    if (!parsed.success) return toast.error(parsed.error.issues[0].message);
     if (bio.length > 500) return toast.error("Bio must be 500 characters or less.");
     setBusy(true);
     const { data: u } = await supabase.auth.getUser();

@@ -6,6 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
 export default defineConfig({
   tanstackStart: {
@@ -17,6 +18,7 @@ export default defineConfig({
   nitro: { preset: "vercel" },
   vite: {
     plugins: [
+      mcpPlugin(),
       VitePWA({
         registerType: "autoUpdate",
         injectRegister: null,
@@ -49,7 +51,7 @@ export default defineConfig({
         workbox: {
           globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff,woff2}"],
           navigateFallback: "/offline.html",
-          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
+          navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/mcp/, /^\/\.mcp/, /^\/\.well-known\//, /^\/\.lovable\//],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,
