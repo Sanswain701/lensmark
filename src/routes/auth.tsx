@@ -11,6 +11,9 @@ import { Camera } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Sign in · LensMark" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,
+  }),
   component: AuthPage,
 });
 
@@ -21,6 +24,14 @@ const schema = z.object({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const goNext = () => {
+    if (next) {
+      window.location.href = next;
+      return;
+    }
+    navigate({ to: "/" });
+  };
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,12 +68,12 @@ function AuthPage() {
       const { error } = await supabase.auth.signUp({
         email: parsed.data.email,
         password: parsed.data.password,
-        options: { emailRedirectTo: window.location.origin },
+        options: { emailRedirectTo: next ? `${window.location.origin}${next}` : window.location.origin },
       });
       setBusy(false);
       if (error) return toast.error(error.message);
       toast.success("Welcome to LensMark. Check your email to confirm.");
-      navigate({ to: "/" });
+      goNext();
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email: parsed.data.email,
@@ -70,14 +81,14 @@ function AuthPage() {
       });
       setBusy(false);
       if (error) return toast.error(error.message);
-      navigate({ to: "/" });
+      goNext();
     }
   };
 
   const google = async () => {
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: next ? `${window.location.origin}${next}` : window.location.origin,
     });
     if (result.error) {
       setBusy(false);
@@ -89,7 +100,7 @@ function AuthPage() {
     }
     // Popup flow completed; session set.
     setBusy(false);
-    navigate({ to: "/" });
+    goNext();
   };
 
   return (
