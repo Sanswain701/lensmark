@@ -65,7 +65,7 @@ export function GalleryFooter({ data, handle }: Props) {
 
         <div className="flex flex-wrap items-center gap-2">
           <Button asChild size="sm" variant="ghost" className="gap-1.5">
-            <Link to="/@$handle" params={{ handle }}>
+            <Link to="/g/$handle" params={{ handle }}>
               <HomeIcon className="h-4 w-4" strokeWidth={1.5} />
               <span>Return to Home</span>
             </Link>

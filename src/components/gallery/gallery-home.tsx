@@ -24,7 +24,7 @@ type Slot = {
   eyebrow: string;
   title: string;
   description: string;
-  to: "/@$handle/frames" | "/@$handle/daily" | "/@$handle/stuff" | "/@$handle/collections" | "/@$handle/about";
+  to: "/g/$handle/frames" | "/g/$handle/daily" | "/g/$handle/stuff" | "/g/$handle/collections" | "/g/$handle/about";
   icon: ReactNode;
   span?: "full" | "half";
 };
@@ -45,7 +45,7 @@ export function GalleryHome({ data, handle, isOwner }: Props) {
       title: "The photograph they want you to see first.",
       description:
         "One Frame, chosen by the photographer, sits at the top of every visit. It anchors the gallery.",
-      to: "/@$handle/frames",
+      to: "/g/$handle/frames",
       icon: <Frame className="h-5 w-5" strokeWidth={1.5} />,
       span: "full",
     },
@@ -55,7 +55,7 @@ export function GalleryHome({ data, handle, isOwner }: Props) {
       title: "One picture a day. No streaks.",
       description:
         "The most recent Daily picture appears here — dated, quiet, and singular.",
-      to: "/@$handle/daily",
+      to: "/g/$handle/daily",
       icon: <CalendarDays className="h-5 w-5" strokeWidth={1.5} />,
     },
     {
@@ -64,7 +64,7 @@ export function GalleryHome({ data, handle, isOwner }: Props) {
       title: "Unpolished, exploratory, in progress.",
       description:
         "A glimpse into Stuff — the low-ceremony space where images live before they earn a Frame.",
-      to: "/@$handle/stuff",
+      to: "/g/$handle/stuff",
       icon: <Hammer className="h-5 w-5" strokeWidth={1.5} />,
     },
     {
@@ -73,7 +73,7 @@ export function GalleryHome({ data, handle, isOwner }: Props) {
       title: "Themed groupings across the gallery.",
       description:
         "Up to twelve curated Collections weave Frames, Daily, and Stuff into new arrangements.",
-      to: "/@$handle/collections",
+      to: "/g/$handle/collections",
       icon: <Layers className="h-5 w-5" strokeWidth={1.5} />,
     },
     {
@@ -82,7 +82,7 @@ export function GalleryHome({ data, handle, isOwner }: Props) {
       title: `Why ${name} makes photographs.`,
       description:
         "A short statement, a portrait, and the links they want you to follow — no more, no less.",
-      to: "/@$handle/about",
+      to: "/g/$handle/about",
       icon: <BookOpen className="h-5 w-5" strokeWidth={1.5} />,
     },
   ];

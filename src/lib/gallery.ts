@@ -69,12 +69,12 @@ export function galleryQueryOptions(handle: string) {
 
 /** Static definition of the six Gallery sections, per GALLERY_SPEC.md §2. */
 export const GALLERY_SECTIONS = [
-  { key: "home", label: "Home", path: "/@$handle" as const, exact: true },
-  { key: "frames", label: "Frames", path: "/@$handle/frames" as const, exact: false },
-  { key: "daily", label: "Daily", path: "/@$handle/daily" as const, exact: false },
-  { key: "stuff", label: "Stuff", path: "/@$handle/stuff" as const, exact: false },
-  { key: "collections", label: "Collections", path: "/@$handle/collections" as const, exact: false },
-  { key: "about", label: "About", path: "/@$handle/about" as const, exact: false },
+  { key: "home", label: "Home", path: "/g/$handle" as const, exact: true },
+  { key: "frames", label: "Frames", path: "/g/$handle/frames" as const, exact: false },
+  { key: "daily", label: "Daily", path: "/g/$handle/daily" as const, exact: false },
+  { key: "stuff", label: "Stuff", path: "/g/$handle/stuff" as const, exact: false },
+  { key: "collections", label: "Collections", path: "/g/$handle/collections" as const, exact: false },
+  { key: "about", label: "About", path: "/g/$handle/about" as const, exact: false },
 ] as const;
 
 export type GallerySectionKey = (typeof GALLERY_SECTIONS)[number]["key"];

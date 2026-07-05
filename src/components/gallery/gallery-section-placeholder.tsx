@@ -27,7 +27,7 @@ export function GallerySectionPlaceholder({ eyebrow, icon, title, description, h
           description={description}
           action={
             <Link
-              to="/@$handle"
+              to="/g/$handle"
               params={{ handle }}
               className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
