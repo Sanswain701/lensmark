@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { GalleryHome } from "@/components/gallery/gallery-home";
 import { galleryQueryOptions } from "@/lib/gallery";
 
-export const Route = createFileRoute("/@$handle/")({
+export const Route = createFileRoute("/g/$handle/")({
   component: GalleryHomeRoute,
 });
 

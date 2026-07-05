@@ -12,22 +12,22 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AthandleRouteImport } from './routes/[@]$handle'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AthandleIndexRouteImport } from './routes/[@]$handle.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as PIdRouteImport } from './routes/p.$id'
+import { Route as GHandleRouteImport } from './routes/g.$handle'
 import { Route as CIdRouteImport } from './routes/c.$id'
 import { Route as AuthenticatedUploadRouteImport } from './routes/_authenticated/upload'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
-import { Route as AthandleStuffRouteImport } from './routes/[@]$handle.stuff'
-import { Route as AthandleFramesRouteImport } from './routes/[@]$handle.frames'
-import { Route as AthandleDailyRouteImport } from './routes/[@]$handle.daily'
-import { Route as AthandleCollectionsRouteImport } from './routes/[@]$handle.collections'
-import { Route as AthandleAboutRouteImport } from './routes/[@]$handle.about'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as GHandleIndexRouteImport } from './routes/g.$handle.index'
+import { Route as GHandleStuffRouteImport } from './routes/g.$handle.stuff'
+import { Route as GHandleFramesRouteImport } from './routes/g.$handle.frames'
+import { Route as GHandleDailyRouteImport } from './routes/g.$handle.daily'
+import { Route as GHandleCollectionsRouteImport } from './routes/g.$handle.collections'
+import { Route as GHandleAboutRouteImport } from './routes/g.$handle.about'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
@@ -46,11 +46,6 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AthandleRoute = AthandleRouteImport.update({
-  id: '/@$handle',
-  path: '/@$handle',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -60,11 +55,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AthandleIndexRoute = AthandleIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AthandleRoute,
-} as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
@@ -73,6 +63,11 @@ const UUsernameRoute = UUsernameRouteImport.update({
 const PIdRoute = PIdRouteImport.update({
   id: '/p/$id',
   path: '/p/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GHandleRoute = GHandleRouteImport.update({
+  id: '/g/$handle',
+  path: '/g/$handle',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CIdRoute = CIdRouteImport.update({
@@ -90,31 +85,6 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AthandleStuffRoute = AthandleStuffRouteImport.update({
-  id: '/stuff',
-  path: '/stuff',
-  getParentRoute: () => AthandleRoute,
-} as any)
-const AthandleFramesRoute = AthandleFramesRouteImport.update({
-  id: '/frames',
-  path: '/frames',
-  getParentRoute: () => AthandleRoute,
-} as any)
-const AthandleDailyRoute = AthandleDailyRouteImport.update({
-  id: '/daily',
-  path: '/daily',
-  getParentRoute: () => AthandleRoute,
-} as any)
-const AthandleCollectionsRoute = AthandleCollectionsRouteImport.update({
-  id: '/collections',
-  path: '/collections',
-  getParentRoute: () => AthandleRoute,
-} as any)
-const AthandleAboutRoute = AthandleAboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => AthandleRoute,
-} as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
     id: '/.well-known/oauth-protected-resource',
@@ -127,6 +97,36 @@ const Char91DotmcpChar93ListToolsRoute =
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
   } as any)
+const GHandleIndexRoute = GHandleIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GHandleRoute,
+} as any)
+const GHandleStuffRoute = GHandleStuffRouteImport.update({
+  id: '/stuff',
+  path: '/stuff',
+  getParentRoute: () => GHandleRoute,
+} as any)
+const GHandleFramesRoute = GHandleFramesRouteImport.update({
+  id: '/frames',
+  path: '/frames',
+  getParentRoute: () => GHandleRoute,
+} as any)
+const GHandleDailyRoute = GHandleDailyRouteImport.update({
+  id: '/daily',
+  path: '/daily',
+  getParentRoute: () => GHandleRoute,
+} as any)
+const GHandleCollectionsRoute = GHandleCollectionsRouteImport.update({
+  id: '/collections',
+  path: '/collections',
+  getParentRoute: () => GHandleRoute,
+} as any)
+const GHandleAboutRoute = GHandleAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => GHandleRoute,
+} as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
   Char91DotmcpChar93InvokeToolToolRouteImport.update({
     id: '/.mcp/invoke-tool/$tool',
@@ -141,25 +141,25 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/@$handle': typeof AthandleRouteWithChildren
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  '/@$handle/about': typeof AthandleAboutRoute
-  '/@$handle/collections': typeof AthandleCollectionsRoute
-  '/@$handle/daily': typeof AthandleDailyRoute
-  '/@$handle/frames': typeof AthandleFramesRoute
-  '/@$handle/stuff': typeof AthandleStuffRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/upload': typeof AuthenticatedUploadRoute
   '/c/$id': typeof CIdRoute
+  '/g/$handle': typeof GHandleRouteWithChildren
   '/p/$id': typeof PIdRoute
   '/u/$username': typeof UUsernameRoute
-  '/@$handle/': typeof AthandleIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/g/$handle/about': typeof GHandleAboutRoute
+  '/g/$handle/collections': typeof GHandleCollectionsRoute
+  '/g/$handle/daily': typeof GHandleDailyRoute
+  '/g/$handle/frames': typeof GHandleFramesRoute
+  '/g/$handle/stuff': typeof GHandleStuffRoute
+  '/g/$handle/': typeof GHandleIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -168,67 +168,67 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  '/@$handle/about': typeof AthandleAboutRoute
-  '/@$handle/collections': typeof AthandleCollectionsRoute
-  '/@$handle/daily': typeof AthandleDailyRoute
-  '/@$handle/frames': typeof AthandleFramesRoute
-  '/@$handle/stuff': typeof AthandleStuffRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/upload': typeof AuthenticatedUploadRoute
   '/c/$id': typeof CIdRoute
   '/p/$id': typeof PIdRoute
   '/u/$username': typeof UUsernameRoute
-  '/@$handle': typeof AthandleIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/g/$handle/about': typeof GHandleAboutRoute
+  '/g/$handle/collections': typeof GHandleCollectionsRoute
+  '/g/$handle/daily': typeof GHandleDailyRoute
+  '/g/$handle/frames': typeof GHandleFramesRoute
+  '/g/$handle/stuff': typeof GHandleStuffRoute
+  '/g/$handle': typeof GHandleIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/@$handle': typeof AthandleRouteWithChildren
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
-  '/@$handle/about': typeof AthandleAboutRoute
-  '/@$handle/collections': typeof AthandleCollectionsRoute
-  '/@$handle/daily': typeof AthandleDailyRoute
-  '/@$handle/frames': typeof AthandleFramesRoute
-  '/@$handle/stuff': typeof AthandleStuffRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/upload': typeof AuthenticatedUploadRoute
   '/c/$id': typeof CIdRoute
+  '/g/$handle': typeof GHandleRouteWithChildren
   '/p/$id': typeof PIdRoute
   '/u/$username': typeof UUsernameRoute
-  '/@$handle/': typeof AthandleIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/g/$handle/about': typeof GHandleAboutRoute
+  '/g/$handle/collections': typeof GHandleCollectionsRoute
+  '/g/$handle/daily': typeof GHandleDailyRoute
+  '/g/$handle/frames': typeof GHandleFramesRoute
+  '/g/$handle/stuff': typeof GHandleStuffRoute
+  '/g/$handle/': typeof GHandleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/@$handle'
     | '/auth'
     | '/mcp'
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
-    | '/@$handle/about'
-    | '/@$handle/collections'
-    | '/@$handle/daily'
-    | '/@$handle/frames'
-    | '/@$handle/stuff'
     | '/settings'
     | '/upload'
     | '/c/$id'
+    | '/g/$handle'
     | '/p/$id'
     | '/u/$username'
-    | '/@$handle/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/g/$handle/about'
+    | '/g/$handle/collections'
+    | '/g/$handle/daily'
+    | '/g/$handle/frames'
+    | '/g/$handle/stuff'
+    | '/g/$handle/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -237,54 +237,54 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
-    | '/@$handle/about'
-    | '/@$handle/collections'
-    | '/@$handle/daily'
-    | '/@$handle/frames'
-    | '/@$handle/stuff'
     | '/settings'
     | '/upload'
     | '/c/$id'
     | '/p/$id'
     | '/u/$username'
-    | '/@$handle'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/g/$handle/about'
+    | '/g/$handle/collections'
+    | '/g/$handle/daily'
+    | '/g/$handle/frames'
+    | '/g/$handle/stuff'
+    | '/g/$handle'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/@$handle'
     | '/auth'
     | '/mcp'
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
-    | '/@$handle/about'
-    | '/@$handle/collections'
-    | '/@$handle/daily'
-    | '/@$handle/frames'
-    | '/@$handle/stuff'
     | '/_authenticated/settings'
     | '/_authenticated/upload'
     | '/c/$id'
+    | '/g/$handle'
     | '/p/$id'
     | '/u/$username'
-    | '/@$handle/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/g/$handle/about'
+    | '/g/$handle/collections'
+    | '/g/$handle/daily'
+    | '/g/$handle/frames'
+    | '/g/$handle/stuff'
+    | '/g/$handle/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AthandleRoute: typeof AthandleRouteWithChildren
   AuthRoute: typeof AuthRoute
   McpRoute: typeof McpRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   CIdRoute: typeof CIdRoute
+  GHandleRoute: typeof GHandleRouteWithChildren
   PIdRoute: typeof PIdRoute
   UUsernameRoute: typeof UUsernameRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -314,13 +314,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/@$handle': {
-      id: '/@$handle'
-      path: '/@$handle'
-      fullPath: '/@$handle'
-      preLoaderRoute: typeof AthandleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -335,13 +328,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/@$handle/': {
-      id: '/@$handle/'
-      path: '/'
-      fullPath: '/@$handle/'
-      preLoaderRoute: typeof AthandleIndexRouteImport
-      parentRoute: typeof AthandleRoute
-    }
     '/u/$username': {
       id: '/u/$username'
       path: '/u/$username'
@@ -354,6 +340,13 @@ declare module '@tanstack/react-router' {
       path: '/p/$id'
       fullPath: '/p/$id'
       preLoaderRoute: typeof PIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/g/$handle': {
+      id: '/g/$handle'
+      path: '/g/$handle'
+      fullPath: '/g/$handle'
+      preLoaderRoute: typeof GHandleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/c/$id': {
@@ -377,41 +370,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/@$handle/stuff': {
-      id: '/@$handle/stuff'
-      path: '/stuff'
-      fullPath: '/@$handle/stuff'
-      preLoaderRoute: typeof AthandleStuffRouteImport
-      parentRoute: typeof AthandleRoute
-    }
-    '/@$handle/frames': {
-      id: '/@$handle/frames'
-      path: '/frames'
-      fullPath: '/@$handle/frames'
-      preLoaderRoute: typeof AthandleFramesRouteImport
-      parentRoute: typeof AthandleRoute
-    }
-    '/@$handle/daily': {
-      id: '/@$handle/daily'
-      path: '/daily'
-      fullPath: '/@$handle/daily'
-      preLoaderRoute: typeof AthandleDailyRouteImport
-      parentRoute: typeof AthandleRoute
-    }
-    '/@$handle/collections': {
-      id: '/@$handle/collections'
-      path: '/collections'
-      fullPath: '/@$handle/collections'
-      preLoaderRoute: typeof AthandleCollectionsRouteImport
-      parentRoute: typeof AthandleRoute
-    }
-    '/@$handle/about': {
-      id: '/@$handle/about'
-      path: '/about'
-      fullPath: '/@$handle/about'
-      preLoaderRoute: typeof AthandleAboutRouteImport
-      parentRoute: typeof AthandleRoute
-    }
     '/.well-known/oauth-protected-resource': {
       id: '/.well-known/oauth-protected-resource'
       path: '/.well-known/oauth-protected-resource'
@@ -425,6 +383,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/.mcp/list-tools'
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/g/$handle/': {
+      id: '/g/$handle/'
+      path: '/'
+      fullPath: '/g/$handle/'
+      preLoaderRoute: typeof GHandleIndexRouteImport
+      parentRoute: typeof GHandleRoute
+    }
+    '/g/$handle/stuff': {
+      id: '/g/$handle/stuff'
+      path: '/stuff'
+      fullPath: '/g/$handle/stuff'
+      preLoaderRoute: typeof GHandleStuffRouteImport
+      parentRoute: typeof GHandleRoute
+    }
+    '/g/$handle/frames': {
+      id: '/g/$handle/frames'
+      path: '/frames'
+      fullPath: '/g/$handle/frames'
+      preLoaderRoute: typeof GHandleFramesRouteImport
+      parentRoute: typeof GHandleRoute
+    }
+    '/g/$handle/daily': {
+      id: '/g/$handle/daily'
+      path: '/daily'
+      fullPath: '/g/$handle/daily'
+      preLoaderRoute: typeof GHandleDailyRouteImport
+      parentRoute: typeof GHandleRoute
+    }
+    '/g/$handle/collections': {
+      id: '/g/$handle/collections'
+      path: '/collections'
+      fullPath: '/g/$handle/collections'
+      preLoaderRoute: typeof GHandleCollectionsRouteImport
+      parentRoute: typeof GHandleRoute
+    }
+    '/g/$handle/about': {
+      id: '/g/$handle/about'
+      path: '/about'
+      fullPath: '/g/$handle/about'
+      preLoaderRoute: typeof GHandleAboutRouteImport
+      parentRoute: typeof GHandleRoute
     }
     '/.mcp/invoke-tool/$tool': {
       id: '/.mcp/invoke-tool/$tool'
@@ -456,32 +456,30 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface AthandleRouteChildren {
-  AthandleAboutRoute: typeof AthandleAboutRoute
-  AthandleCollectionsRoute: typeof AthandleCollectionsRoute
-  AthandleDailyRoute: typeof AthandleDailyRoute
-  AthandleFramesRoute: typeof AthandleFramesRoute
-  AthandleStuffRoute: typeof AthandleStuffRoute
-  AthandleIndexRoute: typeof AthandleIndexRoute
+interface GHandleRouteChildren {
+  GHandleAboutRoute: typeof GHandleAboutRoute
+  GHandleCollectionsRoute: typeof GHandleCollectionsRoute
+  GHandleDailyRoute: typeof GHandleDailyRoute
+  GHandleFramesRoute: typeof GHandleFramesRoute
+  GHandleStuffRoute: typeof GHandleStuffRoute
+  GHandleIndexRoute: typeof GHandleIndexRoute
 }
 
-const AthandleRouteChildren: AthandleRouteChildren = {
-  AthandleAboutRoute: AthandleAboutRoute,
-  AthandleCollectionsRoute: AthandleCollectionsRoute,
-  AthandleDailyRoute: AthandleDailyRoute,
-  AthandleFramesRoute: AthandleFramesRoute,
-  AthandleStuffRoute: AthandleStuffRoute,
-  AthandleIndexRoute: AthandleIndexRoute,
+const GHandleRouteChildren: GHandleRouteChildren = {
+  GHandleAboutRoute: GHandleAboutRoute,
+  GHandleCollectionsRoute: GHandleCollectionsRoute,
+  GHandleDailyRoute: GHandleDailyRoute,
+  GHandleFramesRoute: GHandleFramesRoute,
+  GHandleStuffRoute: GHandleStuffRoute,
+  GHandleIndexRoute: GHandleIndexRoute,
 }
 
-const AthandleRouteWithChildren = AthandleRoute._addFileChildren(
-  AthandleRouteChildren,
-)
+const GHandleRouteWithChildren =
+  GHandleRoute._addFileChildren(GHandleRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AthandleRoute: AthandleRouteWithChildren,
   AuthRoute: AuthRoute,
   McpRoute: McpRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -489,6 +487,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   CIdRoute: CIdRoute,
+  GHandleRoute: GHandleRouteWithChildren,
   PIdRoute: PIdRoute,
   UUsernameRoute: UUsernameRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,

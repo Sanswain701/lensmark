@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { BookOpen } from "lucide-react";
 import { GallerySectionPlaceholder } from "@/components/gallery/gallery-section-placeholder";
 
-export const Route = createFileRoute("/@$handle/about")({
+export const Route = createFileRoute("/g/$handle/about")({
   head: ({ params }) => ({
     meta: [
       { title: `About · @${params.handle} · LensMark` },

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CalendarDays } from "lucide-react";
 import { GallerySectionPlaceholder } from "@/components/gallery/gallery-section-placeholder";
 
-export const Route = createFileRoute("/@$handle/daily")({
+export const Route = createFileRoute("/g/$handle/daily")({
   head: ({ params }) => ({
     meta: [
       { title: `Daily · @${params.handle} · LensMark` },

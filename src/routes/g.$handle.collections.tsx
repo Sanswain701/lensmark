@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Layers } from "lucide-react";
 import { GallerySectionPlaceholder } from "@/components/gallery/gallery-section-placeholder";
 
-export const Route = createFileRoute("/@$handle/collections")({
+export const Route = createFileRoute("/g/$handle/collections")({
   head: ({ params }) => ({
     meta: [
       { title: `Collections · @${params.handle} · LensMark` },

@@ -5,7 +5,7 @@ import { StatusView, BackHomeLink } from "@/components/ui/status-view";
 import { GalleryShell } from "@/components/gallery/gallery-shell";
 import { galleryQueryOptions } from "@/lib/gallery";
 
-export const Route = createFileRoute("/@$handle")({
+export const Route = createFileRoute("/g/$handle")({
   loader: async ({ context, params }) => {
     const data = await context.queryClient.ensureQueryData(
       galleryQueryOptions(params.handle),
