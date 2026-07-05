@@ -12,13 +12,20 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AthandleRouteImport } from './routes/[@]$handle'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AthandleIndexRouteImport } from './routes/[@]$handle.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as CIdRouteImport } from './routes/c.$id'
 import { Route as AuthenticatedUploadRouteImport } from './routes/_authenticated/upload'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AthandleStuffRouteImport } from './routes/[@]$handle.stuff'
+import { Route as AthandleFramesRouteImport } from './routes/[@]$handle.frames'
+import { Route as AthandleDailyRouteImport } from './routes/[@]$handle.daily'
+import { Route as AthandleCollectionsRouteImport } from './routes/[@]$handle.collections'
+import { Route as AthandleAboutRouteImport } from './routes/[@]$handle.about'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
@@ -39,6 +46,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AthandleRoute = AthandleRouteImport.update({
+  id: '/@$handle',
+  path: '/@$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -47,6 +59,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AthandleIndexRoute = AthandleIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AthandleRoute,
 } as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
@@ -72,6 +89,31 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AthandleStuffRoute = AthandleStuffRouteImport.update({
+  id: '/stuff',
+  path: '/stuff',
+  getParentRoute: () => AthandleRoute,
+} as any)
+const AthandleFramesRoute = AthandleFramesRouteImport.update({
+  id: '/frames',
+  path: '/frames',
+  getParentRoute: () => AthandleRoute,
+} as any)
+const AthandleDailyRoute = AthandleDailyRouteImport.update({
+  id: '/daily',
+  path: '/daily',
+  getParentRoute: () => AthandleRoute,
+} as any)
+const AthandleCollectionsRoute = AthandleCollectionsRouteImport.update({
+  id: '/collections',
+  path: '/collections',
+  getParentRoute: () => AthandleRoute,
+} as any)
+const AthandleAboutRoute = AthandleAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => AthandleRoute,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
   Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
@@ -99,16 +141,23 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/@$handle': typeof AthandleRouteWithChildren
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/@$handle/about': typeof AthandleAboutRoute
+  '/@$handle/collections': typeof AthandleCollectionsRoute
+  '/@$handle/daily': typeof AthandleDailyRoute
+  '/@$handle/frames': typeof AthandleFramesRoute
+  '/@$handle/stuff': typeof AthandleStuffRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/upload': typeof AuthenticatedUploadRoute
   '/c/$id': typeof CIdRoute
   '/p/$id': typeof PIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/@$handle/': typeof AthandleIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -119,11 +168,17 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/@$handle/about': typeof AthandleAboutRoute
+  '/@$handle/collections': typeof AthandleCollectionsRoute
+  '/@$handle/daily': typeof AthandleDailyRoute
+  '/@$handle/frames': typeof AthandleFramesRoute
+  '/@$handle/stuff': typeof AthandleStuffRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/upload': typeof AuthenticatedUploadRoute
   '/c/$id': typeof CIdRoute
   '/p/$id': typeof PIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/@$handle': typeof AthandleIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -131,16 +186,23 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/@$handle': typeof AthandleRouteWithChildren
   '/auth': typeof AuthRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/@$handle/about': typeof AthandleAboutRoute
+  '/@$handle/collections': typeof AthandleCollectionsRoute
+  '/@$handle/daily': typeof AthandleDailyRoute
+  '/@$handle/frames': typeof AthandleFramesRoute
+  '/@$handle/stuff': typeof AthandleStuffRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/upload': typeof AuthenticatedUploadRoute
   '/c/$id': typeof CIdRoute
   '/p/$id': typeof PIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/@$handle/': typeof AthandleIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -148,16 +210,23 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/@$handle'
     | '/auth'
     | '/mcp'
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/@$handle/about'
+    | '/@$handle/collections'
+    | '/@$handle/daily'
+    | '/@$handle/frames'
+    | '/@$handle/stuff'
     | '/settings'
     | '/upload'
     | '/c/$id'
     | '/p/$id'
     | '/u/$username'
+    | '/@$handle/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesByTo: FileRoutesByTo
@@ -168,27 +237,40 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/@$handle/about'
+    | '/@$handle/collections'
+    | '/@$handle/daily'
+    | '/@$handle/frames'
+    | '/@$handle/stuff'
     | '/settings'
     | '/upload'
     | '/c/$id'
     | '/p/$id'
     | '/u/$username'
+    | '/@$handle'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/@$handle'
     | '/auth'
     | '/mcp'
     | '/reset-password'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/@$handle/about'
+    | '/@$handle/collections'
+    | '/@$handle/daily'
+    | '/@$handle/frames'
+    | '/@$handle/stuff'
     | '/_authenticated/settings'
     | '/_authenticated/upload'
     | '/c/$id'
     | '/p/$id'
     | '/u/$username'
+    | '/@$handle/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesById: FileRoutesById
@@ -196,6 +278,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AthandleRoute: typeof AthandleRouteWithChildren
   AuthRoute: typeof AuthRoute
   McpRoute: typeof McpRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -231,6 +314,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/@$handle': {
+      id: '/@$handle'
+      path: '/@$handle'
+      fullPath: '/@$handle'
+      preLoaderRoute: typeof AthandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -244,6 +334,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/@$handle/': {
+      id: '/@$handle/'
+      path: '/'
+      fullPath: '/@$handle/'
+      preLoaderRoute: typeof AthandleIndexRouteImport
+      parentRoute: typeof AthandleRoute
     }
     '/u/$username': {
       id: '/u/$username'
@@ -279,6 +376,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/@$handle/stuff': {
+      id: '/@$handle/stuff'
+      path: '/stuff'
+      fullPath: '/@$handle/stuff'
+      preLoaderRoute: typeof AthandleStuffRouteImport
+      parentRoute: typeof AthandleRoute
+    }
+    '/@$handle/frames': {
+      id: '/@$handle/frames'
+      path: '/frames'
+      fullPath: '/@$handle/frames'
+      preLoaderRoute: typeof AthandleFramesRouteImport
+      parentRoute: typeof AthandleRoute
+    }
+    '/@$handle/daily': {
+      id: '/@$handle/daily'
+      path: '/daily'
+      fullPath: '/@$handle/daily'
+      preLoaderRoute: typeof AthandleDailyRouteImport
+      parentRoute: typeof AthandleRoute
+    }
+    '/@$handle/collections': {
+      id: '/@$handle/collections'
+      path: '/collections'
+      fullPath: '/@$handle/collections'
+      preLoaderRoute: typeof AthandleCollectionsRouteImport
+      parentRoute: typeof AthandleRoute
+    }
+    '/@$handle/about': {
+      id: '/@$handle/about'
+      path: '/about'
+      fullPath: '/@$handle/about'
+      preLoaderRoute: typeof AthandleAboutRouteImport
+      parentRoute: typeof AthandleRoute
     }
     '/.well-known/oauth-protected-resource': {
       id: '/.well-known/oauth-protected-resource'
@@ -324,9 +456,32 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AthandleRouteChildren {
+  AthandleAboutRoute: typeof AthandleAboutRoute
+  AthandleCollectionsRoute: typeof AthandleCollectionsRoute
+  AthandleDailyRoute: typeof AthandleDailyRoute
+  AthandleFramesRoute: typeof AthandleFramesRoute
+  AthandleStuffRoute: typeof AthandleStuffRoute
+  AthandleIndexRoute: typeof AthandleIndexRoute
+}
+
+const AthandleRouteChildren: AthandleRouteChildren = {
+  AthandleAboutRoute: AthandleAboutRoute,
+  AthandleCollectionsRoute: AthandleCollectionsRoute,
+  AthandleDailyRoute: AthandleDailyRoute,
+  AthandleFramesRoute: AthandleFramesRoute,
+  AthandleStuffRoute: AthandleStuffRoute,
+  AthandleIndexRoute: AthandleIndexRoute,
+}
+
+const AthandleRouteWithChildren = AthandleRoute._addFileChildren(
+  AthandleRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AthandleRoute: AthandleRouteWithChildren,
   AuthRoute: AuthRoute,
   McpRoute: McpRoute,
   ResetPasswordRoute: ResetPasswordRoute,
