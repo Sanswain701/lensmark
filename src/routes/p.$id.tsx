@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, Trash2, MessageCircle, FolderPlus } from "lucide-react";
+import { Heart, Trash2, MessageCircle, FolderPlus, Frame as FrameIcon } from "lucide-react";
 import { AddToCollectionDialog } from "@/components/add-to-collection-dialog";
 import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -165,6 +165,21 @@ function PhotoPage() {
               </Button>
               {me === photo.owner_id && (
                 <>
+                  <Button
+                    onClick={() =>
+                      navigate({
+                        to: "/g/$handle/frames",
+                        params: { handle: photo.profiles?.username ?? "" },
+                        search: { photo: photo.id },
+                      })
+                    }
+                    variant="outline"
+                    size="icon"
+                    aria-label="Add to a Frame"
+                    title="Add to a Frame"
+                  >
+                    <FrameIcon className="h-4 w-4" />
+                  </Button>
                   <Button onClick={() => setAddOpen(true)} variant="outline" size="icon" aria-label="Add to collection">
                     <FolderPlus className="h-4 w-4" />
                   </Button>
