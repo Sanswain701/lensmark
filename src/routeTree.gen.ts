@@ -30,6 +30,7 @@ import { Route as GHandleCollectionsRouteImport } from './routes/g.$handle.colle
 import { Route as GHandleAboutRouteImport } from './routes/g.$handle.about'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as GHandleFSlugRouteImport } from './routes/g.$handle.f.$slug'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -138,6 +139,11 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GHandleFSlugRoute = GHandleFSlugRouteImport.update({
+  id: '/f/$slug',
+  path: '/f/$slug',
+  getParentRoute: () => GHandleRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/g/$handle/frames': typeof GHandleFramesRoute
   '/g/$handle/stuff': typeof GHandleStuffRoute
   '/g/$handle/': typeof GHandleIndexRoute
+  '/g/$handle/f/$slug': typeof GHandleFSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/g/$handle/frames': typeof GHandleFramesRoute
   '/g/$handle/stuff': typeof GHandleStuffRoute
   '/g/$handle': typeof GHandleIndexRoute
+  '/g/$handle/f/$slug': typeof GHandleFSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/g/$handle/frames': typeof GHandleFramesRoute
   '/g/$handle/stuff': typeof GHandleStuffRoute
   '/g/$handle/': typeof GHandleIndexRoute
+  '/g/$handle/f/$slug': typeof GHandleFSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/g/$handle/frames'
     | '/g/$handle/stuff'
     | '/g/$handle/'
+    | '/g/$handle/f/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/g/$handle/frames'
     | '/g/$handle/stuff'
     | '/g/$handle'
+    | '/g/$handle/f/$slug'
   id:
     | '__root__'
     | '/'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/g/$handle/frames'
     | '/g/$handle/stuff'
     | '/g/$handle/'
+    | '/g/$handle/f/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -440,6 +452,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/g/$handle/f/$slug': {
+      id: '/g/$handle/f/$slug'
+      path: '/f/$slug'
+      fullPath: '/g/$handle/f/$slug'
+      preLoaderRoute: typeof GHandleFSlugRouteImport
+      parentRoute: typeof GHandleRoute
+    }
   }
 }
 
@@ -463,6 +482,7 @@ interface GHandleRouteChildren {
   GHandleFramesRoute: typeof GHandleFramesRoute
   GHandleStuffRoute: typeof GHandleStuffRoute
   GHandleIndexRoute: typeof GHandleIndexRoute
+  GHandleFSlugRoute: typeof GHandleFSlugRoute
 }
 
 const GHandleRouteChildren: GHandleRouteChildren = {
@@ -472,6 +492,7 @@ const GHandleRouteChildren: GHandleRouteChildren = {
   GHandleFramesRoute: GHandleFramesRoute,
   GHandleStuffRoute: GHandleStuffRoute,
   GHandleIndexRoute: GHandleIndexRoute,
+  GHandleFSlugRoute: GHandleFSlugRoute,
 }
 
 const GHandleRouteWithChildren =
