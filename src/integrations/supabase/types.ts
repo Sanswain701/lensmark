@@ -167,6 +167,53 @@ export type Database = {
           },
         ]
       }
+      frames: {
+        Row: {
+          cover_photo_id: string
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          owner_id: string
+          slug: string
+          title: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          cover_photo_id: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          owner_id: string
+          slug: string
+          title: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          cover_photo_id?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          owner_id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "frames_cover_photo_id_fkey"
+            columns: ["cover_photo_id"]
+            isOneToOne: false
+            referencedRelation: "photos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       photos: {
         Row: {
           appreciations_count: number
