@@ -24,6 +24,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as GHandleIndexRouteImport } from './routes/g.$handle.index'
 import { Route as GHandleStuffRouteImport } from './routes/g.$handle.stuff'
+import { Route as GHandleFramesRouteImport } from './routes/g.$handle.frames'
 import { Route as GHandleDailyRouteImport } from './routes/g.$handle.daily'
 import { Route as GHandleCollectionsRouteImport } from './routes/g.$handle.collections'
 import { Route as GHandleAboutRouteImport } from './routes/g.$handle.about'
@@ -106,6 +107,11 @@ const GHandleStuffRoute = GHandleStuffRouteImport.update({
   path: '/stuff',
   getParentRoute: () => GHandleRoute,
 } as any)
+const GHandleFramesRoute = GHandleFramesRouteImport.update({
+  id: '/frames',
+  path: '/frames',
+  getParentRoute: () => GHandleRoute,
+} as any)
 const GHandleDailyRoute = GHandleDailyRouteImport.update({
   id: '/daily',
   path: '/daily',
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/g/$handle/about': typeof GHandleAboutRoute
   '/g/$handle/collections': typeof GHandleCollectionsRoute
   '/g/$handle/daily': typeof GHandleDailyRoute
+  '/g/$handle/frames': typeof GHandleFramesRoute
   '/g/$handle/stuff': typeof GHandleStuffRoute
   '/g/$handle/': typeof GHandleIndexRoute
 }
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/g/$handle/about': typeof GHandleAboutRoute
   '/g/$handle/collections': typeof GHandleCollectionsRoute
   '/g/$handle/daily': typeof GHandleDailyRoute
+  '/g/$handle/frames': typeof GHandleFramesRoute
   '/g/$handle/stuff': typeof GHandleStuffRoute
   '/g/$handle': typeof GHandleIndexRoute
 }
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/g/$handle/about': typeof GHandleAboutRoute
   '/g/$handle/collections': typeof GHandleCollectionsRoute
   '/g/$handle/daily': typeof GHandleDailyRoute
+  '/g/$handle/frames': typeof GHandleFramesRoute
   '/g/$handle/stuff': typeof GHandleStuffRoute
   '/g/$handle/': typeof GHandleIndexRoute
 }
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/g/$handle/about'
     | '/g/$handle/collections'
     | '/g/$handle/daily'
+    | '/g/$handle/frames'
     | '/g/$handle/stuff'
     | '/g/$handle/'
   fileRoutesByTo: FileRoutesByTo
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/g/$handle/about'
     | '/g/$handle/collections'
     | '/g/$handle/daily'
+    | '/g/$handle/frames'
     | '/g/$handle/stuff'
     | '/g/$handle'
   id:
@@ -259,6 +270,7 @@ export interface FileRouteTypes {
     | '/g/$handle/about'
     | '/g/$handle/collections'
     | '/g/$handle/daily'
+    | '/g/$handle/frames'
     | '/g/$handle/stuff'
     | '/g/$handle/'
   fileRoutesById: FileRoutesById
@@ -386,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GHandleStuffRouteImport
       parentRoute: typeof GHandleRoute
     }
+    '/g/$handle/frames': {
+      id: '/g/$handle/frames'
+      path: '/frames'
+      fullPath: '/g/$handle/frames'
+      preLoaderRoute: typeof GHandleFramesRouteImport
+      parentRoute: typeof GHandleRoute
+    }
     '/g/$handle/daily': {
       id: '/g/$handle/daily'
       path: '/daily'
@@ -441,6 +460,7 @@ interface GHandleRouteChildren {
   GHandleAboutRoute: typeof GHandleAboutRoute
   GHandleCollectionsRoute: typeof GHandleCollectionsRoute
   GHandleDailyRoute: typeof GHandleDailyRoute
+  GHandleFramesRoute: typeof GHandleFramesRoute
   GHandleStuffRoute: typeof GHandleStuffRoute
   GHandleIndexRoute: typeof GHandleIndexRoute
 }
@@ -449,6 +469,7 @@ const GHandleRouteChildren: GHandleRouteChildren = {
   GHandleAboutRoute: GHandleAboutRoute,
   GHandleCollectionsRoute: GHandleCollectionsRoute,
   GHandleDailyRoute: GHandleDailyRoute,
+  GHandleFramesRoute: GHandleFramesRoute,
   GHandleStuffRoute: GHandleStuffRoute,
   GHandleIndexRoute: GHandleIndexRoute,
 }
