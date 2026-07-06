@@ -1,8 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { z } from "zod";
-import { zodValidator } from "@tanstack/zod-adapter";
 import { ArrowDown, ArrowUp, Eye, EyeOff, Frame as FrameIcon, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,14 +31,19 @@ import { framesListQueryOptions, FRAMES_CAP, type Frame } from "@/lib/frames";
 import { FrameCard } from "@/components/gallery/frame-card";
 import { FrameEditor } from "@/components/gallery/frame-editor";
 
-const searchSchema = z.object({
-  new: z.coerce.boolean().optional(),
-  photo: z.string().uuid().optional(),
-  edit: z.string().uuid().optional(),
-});
+type FramesSearch = { new?: boolean; photo?: string; edit?: string };
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const validateFramesSearch = (raw: Record<string, unknown>): FramesSearch => {
+  const out: FramesSearch = {};
+  if (raw.new === true || raw.new === "1" || raw.new === "true") out.new = true;
+  if (typeof raw.photo === "string" && UUID_RE.test(raw.photo)) out.photo = raw.photo;
+  if (typeof raw.edit === "string" && UUID_RE.test(raw.edit)) out.edit = raw.edit;
+  return out;
+};
 
 export const Route = createFileRoute("/g/$handle/frames")({
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: validateFramesSearch,
   head: ({ params }) => ({
     meta: [
       { title: `Frames · @${params.handle} · LensMark` },
