@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,61 @@ import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { SiteHeader } from "@/components/site-header";
 import { StatusView, BackHomeLink, RetryButton } from "@/components/ui/status-view";
 
+const SITE_URL = "https://lensmark.lovable.app";
+
+function photoQueryOptions(id: string) {
+  return queryOptions({
+    queryKey: ["photo", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("photos")
+        .select("id,image_url,medium_url,thumb_url,medium_path,thumb_path,caption,created_at,appreciations_count,owner_id,storage_path,profiles!photos_owner_id_fkey(username,display_name)")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) throw notFound();
+      return data as any;
+    },
+  });
+}
+
 export const Route = createFileRoute("/p/$id")({
-  head: () => ({ meta: [{ title: `Photograph · LensMark` }] }),
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(photoQueryOptions(params.id)),
+  head: ({ params, loaderData }) => {
+    const photographer = loaderData?.profiles?.display_name ?? loaderData?.profiles?.username;
+    const caption = loaderData?.caption?.trim();
+    const title = caption
+      ? `${caption.slice(0, 70)}${photographer ? ` — @${loaderData.profiles.username}` : ""} · LensMark`
+      : photographer
+        ? `Photograph by @${loaderData.profiles.username} · LensMark`
+        : "Photograph · LensMark";
+    const description = caption
+      ? caption.slice(0, 155)
+      : photographer
+        ? `A photograph by ${photographer} on LensMark.`
+        : "A photograph on LensMark.";
+    const url = `${SITE_URL}/p/${params.id}`;
+    const image = loaderData?.medium_url ?? loaderData?.image_url;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+        ...(typeof image === "string" && image.startsWith("https://")
+          ? [
+              { property: "og:image", content: image },
+              { name: "twitter:image", content: image },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: PhotoPage,
   errorComponent: ({ error, reset }) => (
     <StatusView
@@ -40,19 +93,7 @@ function PhotoPage() {
     supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
   }, []);
 
-  const photoQ = useQuery({
-    queryKey: ["photo", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("photos")
-        .select("id,image_url,medium_url,thumb_url,medium_path,thumb_path,caption,created_at,appreciations_count,owner_id,storage_path,profiles!photos_owner_id_fkey(username,display_name)")
-        .eq("id", id)
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) throw notFound();
-      return data as any;
-    },
-  });
+  const photoQ = useQuery(photoQueryOptions(id));
 
   const commentsQ = useQuery({
     queryKey: ["comments", id],
@@ -141,6 +182,11 @@ function PhotoPage() {
             <img src={photo.image_url} alt={photo.caption ?? ""} className="mx-auto max-h-[82vh] w-auto rounded-2xl object-contain" />
           </div>
           <aside className="space-y-6">
+            <h1 className="font-display text-3xl tracking-tight md:text-4xl">
+              {photo.caption?.trim()
+                ? photo.caption
+                : `Photograph by @${photo.profiles?.username ?? "unknown"}`}
+            </h1>
             <div>
               <Link to="/u/$username" params={{ username: photo.profiles?.username ?? "" }} className="inline-flex items-center gap-3">
                 <div className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-sm font-medium ring-1 ring-foreground/10">
@@ -152,7 +198,9 @@ function PhotoPage() {
                 </div>
               </Link>
             </div>
-            {photo.caption && <p className="text-[15px] leading-[1.75]">{photo.caption}</p>}
+            {photo.caption && (
+              <p className="text-[15px] leading-[1.75] text-muted-foreground">{photo.caption}</p>
+            )}
             <dl className="grid grid-cols-3 gap-3 border-y border-border/70 py-5 text-center">
               <div><dt className="eyebrow">Date</dt><dd className="font-display mt-1 text-base">{format(dt, "MMM d")}</dd></div>
               <div><dt className="eyebrow">Time</dt><dd className="font-display mt-1 text-base meta">{format(dt, "HH:mm")}</dd></div>
@@ -191,7 +239,7 @@ function PhotoPage() {
             </div>
 
             <div>
-              <h3 className="mb-3 inline-flex items-center gap-2 text-sm font-medium"><MessageCircle className="h-4 w-4" strokeWidth={1.5} /> Conversation</h3>
+              <h2 className="mb-3 inline-flex items-center gap-2 text-sm font-medium"><MessageCircle className="h-4 w-4" strokeWidth={1.5} /> Conversation</h2>
               <form onSubmit={postComment} className="space-y-2">
                 <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={1000} placeholder={me ? "Share a thoughtful observation…" : "Sign in to share an observation"} disabled={!me} />
                 <Button type="submit" size="sm" disabled={!me || posting || !comment.trim()}>Post</Button>
