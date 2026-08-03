@@ -8,7 +8,11 @@ export const Route = createFileRoute("/g/$handle/collections")({
       { title: `Collections · @${params.handle} · LensMark` },
       { name: "description", content: `Themed collections curated by @${params.handle}.` },
       { property: "og:title", content: `Collections · @${params.handle}` },
+      { property: "og:description", content: `Themed collections curated by @${params.handle}.` },
+      { property: "og:type", content: "profile" },
+      { property: "og:url", content: `https://lensmark.lovable.app/g/${params.handle}/collections` },
     ],
+    links: [{ rel: "canonical", href: `https://lensmark.lovable.app/g/${params.handle}/collections` }],
   }),
   component: CollectionsSectionRoute,
 });
