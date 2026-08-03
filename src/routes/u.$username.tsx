@@ -39,7 +39,7 @@ function ProfilePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id,username,display_name,bio,avatar_url,cover_url,instagram,twitter,website,featured_collection_id,trust_score,created_at")
+        .select("id,username,display_name,bio,avatar_url,cover_url,instagram,twitter,website,featured_collection_id,created_at")
         .eq("username", username)
         .maybeSingle();
       if (error) throw error;
@@ -127,8 +127,7 @@ function ProfilePage() {
               </div>
               {profile.bio && <p className="mt-5 max-w-xl whitespace-pre-line text-[15px] leading-[1.7] text-foreground/90">{profile.bio}</p>}
             </div>
-            <dl className="grid grid-cols-3 gap-3 text-sm md:max-w-sm">
-              <Stat icon={<Shield className="h-4 w-4" strokeWidth={1.5} />} label="Trust" value={String(profile.trust_score)} />
+            <dl className="grid grid-cols-2 gap-3 text-sm md:max-w-sm">
               <Stat icon={<ImageIcon className="h-4 w-4" strokeWidth={1.5} />} label="Photos" value={String(photosQ.data?.length ?? "—")} />
               <Stat icon={<Calendar className="h-4 w-4" strokeWidth={1.5} />} label="Joined" value={format(new Date(profile.created_at), "MMM yyyy")} />
             </dl>
