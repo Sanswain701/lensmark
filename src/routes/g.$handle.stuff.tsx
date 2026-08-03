@@ -8,7 +8,11 @@ export const Route = createFileRoute("/g/$handle/stuff")({
       { title: `Stuff · @${params.handle} · LensMark` },
       { name: "description", content: `Workshop images from @${params.handle}.` },
       { property: "og:title", content: `Stuff · @${params.handle}` },
+      { property: "og:description", content: `Workshop images from @${params.handle}.` },
+      { property: "og:type", content: "profile" },
+      { property: "og:url", content: `https://lensmark.lovable.app/g/${params.handle}/stuff` },
     ],
+    links: [{ rel: "canonical", href: `https://lensmark.lovable.app/g/${params.handle}/stuff` }],
   }),
   component: StuffSectionRoute,
 });
