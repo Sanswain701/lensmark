@@ -50,7 +50,10 @@ export const Route = createFileRoute("/g/$handle/frames")({
       { name: "description", content: `The permanent portfolio of @${params.handle}.` },
       { property: "og:title", content: `Frames · @${params.handle}` },
       { property: "og:description", content: `The permanent portfolio of @${params.handle}.` },
+      { property: "og:type", content: "profile" },
+      { property: "og:url", content: `https://lensmark.lovable.app/g/${params.handle}/frames` },
     ],
+    links: [{ rel: "canonical", href: `https://lensmark.lovable.app/g/${params.handle}/frames` }],
   }),
   component: FramesSectionRoute,
 });

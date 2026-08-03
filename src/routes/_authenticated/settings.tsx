@@ -14,7 +14,13 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 export const Route = createFileRoute("/_authenticated/settings")({
-  head: () => ({ meta: [{ title: "Settings · LensMark" }] }),
+  head: () => ({
+    meta: [
+      { title: "Settings · LensMark" },
+      { name: "description", content: "Manage your LensMark profile, handle, avatar, and links." },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: Settings,
 });
 

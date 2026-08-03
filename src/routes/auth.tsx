@@ -10,7 +10,15 @@ import { toast } from "sonner";
 import { Camera } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Sign in · LensMark" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in · LensMark" },
+      { name: "description", content: "Sign in or create a LensMark account to publish photographs, frames, and collections." },
+      { property: "og:title", content: "Sign in · LensMark" },
+      { property: "og:description", content: "Sign in or create a LensMark account." },
+      { name: "robots", content: "noindex,follow" },
+    ],
+  }),
   validateSearch: (s: Record<string, unknown>) => ({
     next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : undefined,
   }),

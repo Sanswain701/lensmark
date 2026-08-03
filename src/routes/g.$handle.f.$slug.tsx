@@ -32,12 +32,23 @@ export const Route = createFileRoute("/g/$handle/f/$slug")({
     }
     return { ownerId: gallery.profile.id, allowDraft: false };
   },
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug.replace(/-/g, " ")} · Frame · @${params.handle}` },
-      { property: "og:title", content: `Frame · @${params.handle}` },
-    ],
-  }),
+  head: ({ params }) => {
+    const name = params.slug.replace(/-/g, " ");
+    const title = `${name} · Frame · @${params.handle} · LensMark`;
+    const description = `${name} — a frame from the portfolio of @${params.handle} on LensMark.`;
+    const url = `https://lensmark.lovable.app/g/${params.handle}/f/${params.slug}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: FrameDetailRoute,
   errorComponent: ({ error, reset }) => (
     <StatusView

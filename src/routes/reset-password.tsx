@@ -7,7 +7,13 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Reset password · LensMark" }] }),
+  head: () => ({
+    meta: [
+      { title: "Reset password · LensMark" },
+      { name: "description", content: "Choose a new password for your LensMark account." },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: ResetPassword,
 });
 
