@@ -12,7 +12,6 @@ export type GalleryProfile = {
   twitter: string | null;
   website: string | null;
   featured_collection_id: string | null;
-  trust_score: number;
   created_at: string;
 };
 
@@ -38,7 +37,7 @@ export function galleryQueryOptions(handle: string) {
       const { data: profile, error } = await supabase
         .from("profiles")
         .select(
-          "id,username,display_name,bio,avatar_url,cover_url,instagram,twitter,website,featured_collection_id,trust_score,created_at",
+          "id,username,display_name,bio,avatar_url,cover_url,instagram,twitter,website,featured_collection_id,created_at",
         )
         .eq("username", handle)
         .maybeSingle();
