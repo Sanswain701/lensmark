@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SocialIcons } from "@/components/social-icons";
-import { Shield, Calendar, Image as ImageIcon, Layers } from "lucide-react";
+import { Calendar, Image as ImageIcon, Layers } from "lucide-react";
 import { format } from "date-fns";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { SiteHeader } from "@/components/site-header";
