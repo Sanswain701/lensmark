@@ -5,6 +5,22 @@ import { GalleryHome } from "@/components/gallery/gallery-home";
 import { galleryQueryOptions } from "@/lib/gallery";
 
 export const Route = createFileRoute("/g/$handle/")({
+  head: ({ params }) => {
+    const url = `https://lensmark.lovable.app/g/${params.handle}`;
+    const title = `@${params.handle} · Gallery · LensMark`;
+    const description = `The photography gallery of @${params.handle} — frames, daily pictures, and collections.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "profile" },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: GalleryHomeRoute,
 });
 
