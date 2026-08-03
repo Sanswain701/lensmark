@@ -15,9 +15,12 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "LensMark — Quiet photography, made to be seen" },
       { name: "description", content: "Discover photographers who shoot for the craft. A trust-first community built around identity, collections, and slow viewing." },
-      { property: "og:title", content: "LensMark" },
-      { property: "og:description", content: "Quiet photography, made to be seen." },
+      { property: "og:title", content: "LensMark — Quiet photography, made to be seen" },
+      { property: "og:description", content: "Discover photographers who shoot for the craft. A trust-first community built around identity, collections, and slow viewing." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://lensmark.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://lensmark.lovable.app/" }],
   }),
   component: Home,
 });
