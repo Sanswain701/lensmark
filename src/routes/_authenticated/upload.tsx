@@ -12,7 +12,13 @@ import { processImage } from "@/lib/image-pipeline";
 import { SourceSelect } from "@/components/source-select";
 
 export const Route = createFileRoute("/_authenticated/upload")({
-head: () => ({ meta: [{ title: "Upload · LensMark" }] }),
+head: () => ({
+  meta: [
+    { title: "Upload · LensMark" },
+    { name: "description", content: "Add a photograph to your LensMark gallery." },
+    { name: "robots", content: "noindex,nofollow" },
+  ],
+}),
 component: UploadPage,
 });
 
