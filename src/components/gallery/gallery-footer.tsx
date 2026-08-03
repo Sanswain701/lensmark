@@ -13,7 +13,8 @@ type Props = {
 
 /**
  * Quiet gallery footer — small stats, return-to-home, share.
- * Public metrics are limited by spec §4 to counts + joined + trust.
+ * Public metrics are limited to counts + joined. The internal trust score is
+ * moderation-only data and is never exposed to visitors.
  */
 export function GalleryFooter({ data, handle }: Props) {
   const [copied, setCopied] = useState(false);
@@ -56,9 +57,9 @@ export function GalleryFooter({ data, handle }: Props) {
             </Meta>
           </div>
           <div>
-            <Eyebrow className="text-muted-foreground">Trust</Eyebrow>
+            <Eyebrow className="text-muted-foreground">Joined</Eyebrow>
             <Meta className="mt-1 block text-base text-foreground">
-              {profile.trust_score}
+              {new Date(profile.created_at).getFullYear()}
             </Meta>
           </div>
         </dl>
