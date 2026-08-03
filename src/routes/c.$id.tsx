@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
@@ -16,8 +16,58 @@ import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { StatusView, BackHomeLink, RetryButton } from "@/components/ui/status-view";
 import { EmptyState } from "@/components/ui/empty-state";
 
+const SITE_URL = "https://lensmark.lovable.app";
+
+function collectionQueryOptions(id: string) {
+  return queryOptions({
+    queryKey: ["collection", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collections")
+        .select("id,name,description,owner_id,cover_url,profiles!collections_owner_id_fkey(username,display_name)")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) throw notFound();
+      return data as any;
+    },
+  });
+}
+
 export const Route = createFileRoute("/c/$id")({
-  head: () => ({ meta: [{ title: "Collection · LensMark" }] }),
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(collectionQueryOptions(params.id)),
+  head: ({ params, loaderData }) => {
+    const owner = loaderData?.profiles?.username;
+    const title = loaderData?.name
+      ? `${loaderData.name}${owner ? ` — @${owner}` : ""} · Collection · LensMark`
+      : "Collection · LensMark";
+    const description =
+      loaderData?.description?.slice(0, 155) ??
+      (loaderData?.name
+        ? `${loaderData.name}, a photography collection${owner ? ` curated by @${owner}` : ""} on LensMark.`
+        : "A photography collection on LensMark.");
+    const url = `${SITE_URL}/c/${params.id}`;
+    const image = loaderData?.cover_url;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+        ...(typeof image === "string" && image.startsWith("https://")
+          ? [
+              { property: "og:image", content: image },
+              { name: "twitter:image", content: image },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: CollectionPage,
   errorComponent: ({ error, reset }) => (
     <StatusView
@@ -38,19 +88,7 @@ function CollectionPage() {
   const [me, setMe] = useState<string | null>(null);
   useEffect(() => { supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null)); }, []);
 
-  const colQ = useQuery({
-    queryKey: ["collection", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("collections")
-        .select("id,name,description,owner_id,cover_url,profiles!collections_owner_id_fkey(username,display_name)")
-        .eq("id", id)
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) throw notFound();
-      return data as any;
-    },
-  });
+  const colQ = useQuery(collectionQueryOptions(id));
 
   const photosQ = useQuery({
     queryKey: ["collection-photos", id],
@@ -160,8 +198,8 @@ function CollectionPage() {
           </div>
           {isOwner && (
             <div className="flex gap-2">
-              <Button variant="outline" size="icon" onClick={openEdit} aria-label="Edit"><Pencil className="h-4 w-4" /></Button>
-              <Button variant="outline" size="icon" onClick={remove} aria-label="Delete"><Trash2 className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" onClick={openEdit} aria-label="Edit collection" title="Edit collection"><Pencil className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" onClick={remove} aria-label="Delete collection" title="Delete collection"><Trash2 className="h-4 w-4" /></Button>
             </div>
           )}
         </header>
