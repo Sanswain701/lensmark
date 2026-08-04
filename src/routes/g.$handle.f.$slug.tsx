@@ -47,6 +47,19 @@ export const Route = createFileRoute("/g/$handle/f/$slug")({
         { property: "og:url", content: url },
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ImageObject",
+            url,
+            name,
+            description,
+            author: { "@type": "Person", name: params.handle, alternateName: `@${params.handle}` },
+          }),
+        },
+      ],
     };
   },
   component: FrameDetailRoute,
