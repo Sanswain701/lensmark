@@ -65,6 +65,25 @@ export const Route = createFileRoute("/p/$id")({
           : []),
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ImageObject",
+            url,
+            name: title,
+            description,
+            ...(typeof image === "string" && image.startsWith("https://")
+              ? { contentUrl: image }
+              : {}),
+            ...(photographer
+              ? { author: { "@type": "Person", name: photographer } }
+              : {}),
+            ...(loaderData?.created_at ? { uploadDate: loaderData.created_at } : {}),
+          }),
+        },
+      ],
     };
   },
   component: PhotoPage,

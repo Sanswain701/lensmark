@@ -21,6 +21,29 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://lensmark.lovable.app/" },
     ],
     links: [{ rel: "canonical", href: "https://lensmark.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              name: "LensMark",
+              url: "https://lensmark.lovable.app/",
+              description:
+                "A trust-first photography community built around identity, collections, and slow viewing.",
+            },
+            {
+              "@type": "Organization",
+              name: "LensMark",
+              url: "https://lensmark.lovable.app/",
+              description: "A quieter home for photography.",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: Home,
 });

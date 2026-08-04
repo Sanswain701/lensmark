@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /settings
+Disallow: /upload
+Disallow: /reset-password
+
+Sitemap: https://lensmark.lovable.app/sitemap.xml

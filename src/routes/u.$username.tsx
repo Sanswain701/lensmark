@@ -22,6 +22,24 @@ export const Route = createFileRoute("/u/$username")({
       { property: "og:url", content: `https://lensmark.lovable.app/u/${params.username}` },
     ],
     links: [{ rel: "canonical", href: `https://lensmark.lovable.app/u/${params.username}` }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ProfilePage",
+          url: `https://lensmark.lovable.app/u/${params.username}`,
+          name: `@${params.username} · LensMark`,
+          description: `Photographs by @${params.username} on LensMark.`,
+          mainEntity: {
+            "@type": "Person",
+            name: params.username,
+            alternateName: `@${params.username}`,
+            url: `https://lensmark.lovable.app/u/${params.username}`,
+          },
+        }),
+      },
+    ],
   }),
   component: ProfilePage,
   errorComponent: () => <ErrorView />,
