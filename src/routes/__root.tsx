@@ -83,6 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "LensMark — A quieter home for photography" },
       { name: "description", content: "LensMark is a trust-first photography community built around identity, discovery, and collections — not vanity metrics." },
       { name: "author", content: "LensMark" },
+      { name: "google-site-verification", content: "LAJTVTOcr8EcillI95CqA5UT7MwE9lzkOFdTe3FyYF8" },
       { property: "og:title", content: "LensMark — A quieter home for photography" },
       { property: "og:description", content: "LensMark is a trust-first photography community built around identity, discovery, and collections — not vanity metrics." },
       { property: "og:type", content: "website" },
