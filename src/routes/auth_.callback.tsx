@@ -11,7 +11,7 @@ export const Route = createFileRoute("/auth_/callback")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { next?: string } => ({
     next:
       typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//")
         ? s.next
@@ -32,7 +32,7 @@ function AuthCallback() {
       done = true;
       if (!session) {
         setMessage("We couldn't complete the sign-in. Redirecting…");
-        navigate({ to: "/auth", search: next ? { next } : {} });
+        navigate({ to: "/auth", search: { next } });
         return;
       }
       if (next) window.location.href = next;
