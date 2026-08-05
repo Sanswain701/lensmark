@@ -17,7 +17,7 @@ export const Route = createFileRoute("/auth_/callback")({
         ? s.next
         : undefined,
   }),
-  component: AuthCallback;
+  component: AuthCallback,
 });
 
 function AuthCallback() {

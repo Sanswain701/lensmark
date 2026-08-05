@@ -19,6 +19,7 @@ import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as GHandleRouteImport } from './routes/g.$handle'
 import { Route as CIdRouteImport } from './routes/c.$id'
+import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as AuthenticatedUploadRouteImport } from './routes/_authenticated/upload'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
@@ -80,6 +81,11 @@ const GHandleRoute = GHandleRouteImport.update({
 const CIdRoute = CIdRouteImport.update({
   id: '/c/$id',
   path: '/c/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth_/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedUploadRoute = AuthenticatedUploadRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/upload': typeof AuthenticatedUploadRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/c/$id': typeof CIdRoute
   '/g/$handle': typeof GHandleRouteWithChildren
   '/p/$id': typeof PIdRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/upload': typeof AuthenticatedUploadRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/c/$id': typeof CIdRoute
   '/p/$id': typeof PIdRoute
   '/u/$username': typeof UUsernameRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/upload': typeof AuthenticatedUploadRoute
+  '/auth_/callback': typeof AuthCallbackRoute
   '/c/$id': typeof CIdRoute
   '/g/$handle': typeof GHandleRouteWithChildren
   '/p/$id': typeof PIdRoute
@@ -236,6 +245,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/settings'
     | '/upload'
+    | '/auth/callback'
     | '/c/$id'
     | '/g/$handle'
     | '/p/$id'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/settings'
     | '/upload'
+    | '/auth/callback'
     | '/c/$id'
     | '/p/$id'
     | '/u/$username'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/settings'
     | '/_authenticated/upload'
+    | '/auth_/callback'
     | '/c/$id'
     | '/g/$handle'
     | '/p/$id'
@@ -308,6 +320,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   CIdRoute: typeof CIdRoute
   GHandleRoute: typeof GHandleRouteWithChildren
   PIdRoute: typeof PIdRoute
@@ -386,6 +399,13 @@ declare module '@tanstack/react-router' {
       path: '/c/$id'
       fullPath: '/c/$id'
       preLoaderRoute: typeof CIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth_/callback': {
+      id: '/auth_/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/upload': {
@@ -528,6 +548,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   CIdRoute: CIdRoute,
   GHandleRoute: GHandleRouteWithChildren,
   PIdRoute: PIdRoute,
@@ -538,3 +559,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
