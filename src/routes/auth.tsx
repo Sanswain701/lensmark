@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { signInWithGoogle } from "@/lib/google-signin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -95,9 +95,11 @@ function AuthPage() {
 
   const google = async () => {
     setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: next ? `${window.location.origin}${next}` : window.location.origin,
-    });
+    const result = await signInWithGoogle(
+      next
+        ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+        : `${window.location.origin}/auth/callback`,
+    );
     if (result.error) {
       setBusy(false);
       return toast.error(result.error.message ?? "Sign-in failed.");
